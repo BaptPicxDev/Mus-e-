@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>Master Bablyon.js/BabylonJS Combined Tutorial</title>
+
+	<style>
+
+		body {
+			background-color: 	white;
+		}
+
+
+		#raw {
+			width:				98%;
+			padding:			3pt;
+			background-color:	#cccccc;
+			color:				black;
+			border:				1pt solid black;
+			font-weight:		bold;
+		}
+
+		xmp {
+			display:			block;
+		}
+
+
+		.code {
+			color:				black;
+			background-color: 	#cccccc;
+			border: 			solid 1px silver;
+			padding:			5px;
+		}
+
+		.dlinks {
+			font-size:			1.5em;
+			font-weight:		bold;
+			color: 				white;
+			border: 			5pt outset red;
+			background-color: 	red;
+			padding:			3pt;
+		}
+
+		blockquote {
+			font-size:			1.1em;
+			font-weight:		bold;
+			font-style:			italic;
+			color: 				black;
+			border: 			2pt solid #555555;
+			padding-top:		5pt;
+			padding-bottom:		5pt;
+			padding-left:		6pt;
+			border-left:		8pt solid #555555;
+			background-color:	#bbbbbb;
+		}
+
+	</style>
+
+</head>
+
+<body>
+
+<!-- 01--------------------------------------------------------------------------------------------------------------------- -->
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/bjs1.jpg" alt="Babylon JS 01"></p>
+
+<p style="background-color:red;color:white;padding:3pt;font-weight:bold;">
+This large document has been pieced-together by a chap called Wingnut (in Dec 2013) who is not affiliated with
+babylon.js or its developers. Mistakes likely! Not guaranteed fresh beyond Dec 2013! This document/package was
+made primarily for off-line use, and its (re)publishing rights likely fall under the same copyright rules/policies as the
+original documents and their owners/authors.</p>
+
+<h1> Creating A Basic Scene With BabylonJS</h1>
+
+<p>In this section, we are going to create a basic 3D scene with BabylonJS.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/sphere.png" alt="Babylon JS 01"></p>
+
+<p><em>Final result</em></p>
+
+<p>You can develop this scene very easily in a few simple steps.</p>
+
+<p>Before you start, be sure to have a WebGL compatible browser.</p>
+
+<h3>Step 1 - The Web Part</h3>
+
+<p>First of all, create a basic HTML5 web page:</p>
+<p>TIP: If you are copy'n'pasting, clicking in the gray areas and then 
+pressing control-a... is a great way to highlight all the text
+including the leading tabs for proper indenting (then press control-c to
+ copy).  Careful. Control-x will temporarily erase the highlighted
+text, but a control-z or page reload... brings it back.</p>
+
+<form><textarea id="raw" rows="10" cols="350">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+	&lt;head&gt;
+		&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"/&gt;
+		&lt;title&gt;Babylon - Basic scene&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;/body&gt;
+&lt;/html&gt;
+</textarea></form>
+
+<p>Then add a canvas element to the scene and a bit of CSS. This canvas is an HTML5 element, which will be used to draw our scene.</p>
+
+<h3>Step 2 - The &lt;body&gt; part:</h3>
+
+<form><textarea id="raw" rows="4" cols="350">		&lt;div id="rootDiv"&gt;
+			&lt;canvas id="renderCanvas"&gt;&lt;/canvas&gt;
+		&lt;/div&gt;
+</textarea></form>
+
+<h3>Step 3 - The &lt;head&gt; part.</h3>
+<p>Here we put our CSS to view the canvas in maximum size:</p>
+
+<form><textarea id="raw" rows="10" cols="350">		&lt;style&gt;
+			html, body, div, canvas {
+				width: 100%;
+				height: 100%;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+			}
+		&lt;/style&gt;
+</textarea></form>
+
+<p>Now we have an empty web page, ready to display 3D!</p>
+
+<h3>Step 4 - The JavaScript Part</h3> <span>(with a little work still happening in the &lt;head&gt; part) :)</span>
+
+<p>The JS part begins with 'including' (importing) the Babylon source files (the framework)
+within the &lt;head&gt; element of our HTML 5 document:</p>
+
+<form><textarea id="raw" rows="3" cols="350">		&lt;script src="babylon.js"&gt;&lt;/script&gt;
+		&lt;script src="hand.js"&gt;&lt;/script&gt;
+</textarea></form>
+
+<p>(If you don't already have those files, you can find them online... here: <a href="https://github.com/BabylonJS/Babylon.js">
+https://github.com/BabylonJS/Babylon.js</a>, and here: <a href="http://handjs.codeplex.com/"> http://handjs.codeplex.com/</a>)</p>
+
+<p> Careful! The newest version of babylon.js and handjs.js might have version numbers in their names.  Be sure to rename them
+once downloaded, or adjust the SRC names (and possibly paths) used in your two &lt;script&gt; elements that you used within
+the &lt;head&gt; of your document.</p>
+
+<p>Then finally, at the end of our web page (AFTER &lt;/body&gt;), load the engine and create your
+'scene'! A 'scene' is composed of:</p>
+
+<ul>
+<li>The Babylon engine</li>
+<li>A scene object</li>
+<li>A camera</li>
+<li>At least one light</li>
+<li>A render loop, to display your scene continuously </li>
+</ul>
+
+<p>Loading the engine... here we go! (the part put after the HTML 
+&lt;/body&gt; element, which is included here to show positioning)</p>
+
+<form><textarea id="raw" rows="10" cols="350">	&lt;/body&gt;
+
+	&lt;script type="text/javascript"&gt;
+
+		// Get the Canvas element from our HTML below
+		var canvas = document.getElementById("renderCanvas");
+
+		// Load BABYLON 3D engine
+		var engine = new BABYLON.Engine(canvas, true);
+</textarea></form>
+
+<p>Below that... just let your imagination run wild as you create incredible scenes like this one:</p>
+
+<form><textarea id="raw" rows="20" cols="350">		// Create a scene (calmly)
+		var scene = new BABYLON.Scene(engine);
+
+		// Create a camera looking to the zero point (0,0,0), a light, and a sphere of size 1
+		var camera = new BABYLON.ArcRotateCamera("Camera", 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), scene);
+		var light0 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 0, 10), scene);
+		var origin = BABYLON.Mesh.CreateSphere("origin", 10, 1.0, scene);
+
+		// Attach the camera to the scene
+		scene.activeCamera.attachControl(canvas);
+
+		// Once the scene is loaded, just register a render loop to render it
+		engine.runRenderLoop(function () {
+			scene.render();
+		});
+
+	&lt;/script&gt;
+
+&lt;/html&gt;
+</textarea></form>
+
+<p>And you are already done! Just for kicks, make sure you don't have two &lt;/body&gt; or two &lt;/html&gt; elements.</p>
+
+<p> The full document should look like this... </p>
+
+<form><textarea id="raw" rows="52" cols="350">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+	&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"/&gt;
+	&lt;title&gt;Babylon - Basic scene&lt;/title&gt;
+	&lt;script src="babylon.js"&gt;&lt;/script&gt;
+	&lt;script src="hand.js"&gt;&lt;/script&gt;
+	&lt;style&gt;
+		html, body, div, canvas {
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+		}
+	&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;div id="rootDiv"&gt;
+		&lt;canvas id="renderCanvas"&gt;&lt;/canvas&gt;
+	&lt;/div&gt;
+&lt;/body&gt;
+
+&lt;script type="text/javascript"&gt;
+
+	// Get the Canvas element from our HTML below
+	var canvas = document.getElementById("renderCanvas");
+
+	// Load BABYLON 3D engine
+	var engine = new BABYLON.Engine(canvas, true);
+
+	// Create a scene (calmly)
+	var scene = new BABYLON.Scene(engine);
+
+	// Create a camera looking to the zero point (0,0,0), a light, and a sphere of size 1
+	var camera = new BABYLON.ArcRotateCamera("Camera", 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), scene);
+	var light0 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 0, 10), scene);
+	var origin = BABYLON.Mesh.CreateSphere("origin", 10, 1.0, scene);
+
+	// Attach the camera to the scene
+	scene.activeCamera.attachControl(canvas);
+
+	// Once the scene is loaded, just register a render loop to render it
+	engine.runRenderLoop(function () {
+		scene.render();
+	});
+
+&lt;/script&gt;
+
+&lt;/html&gt;
+</textarea></form>
+
+<p>Now, you should see your sphere in 3D within your webGL-ready browser.</p>
+
+<p>Don't hesitate to download the complete source code
+<a href="http://www.babylonjs.com/tutorials/01%20-%20Basic%20scene/01%20-%20Basic%20scene.zip"><strong>HERE</strong></a>.</p>
+
+<br><hr>
+<!-- 02--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>02 Basic Elements</h1>
+
+<p>In this section, we are going to learn how to create basic elements using Babylon JS such as boxes, spheres, and planes.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/shapes.png" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<p>Creating an object is easy, but as for building our future scenes, the code will become more and more complex. So, let's
+envision a brand new document structure. We still start with a fresh HTML 5 page with our babylon.js and hand.js files
+being included in the document's &lt;head&gt; just like before.  But this time, notice how we are including two more JS
+files in that section... babylonprep.js and myscene.js  You may name these two files per your liking, as we will be
+MAKING them as seperate documents ourselves.  Adjust your two new script elements to reflect whatever names you use
+for them.</p>
+
+<p>Just like with the hand.js and babylon.js &lt;script&gt; elements, the two new &lt;script&gt; elements are put
+within the &lt;head&gt; of the HTML 5 document... like so:</p>
+
+<form><textarea id="raw" rows="32" cols="350">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+	&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"/&gt;
+	&lt;title&gt;BABYLON - Create simple elements&lt;/title&gt;
+
+	&lt;script src="hand.js"&gt;&lt;/script&gt;
+	&lt;script src="babylon.js"&gt;&lt;/script&gt;
+
+	&lt;!-- New JS files --&gt;
+
+	&lt;!-- This one contains Babylon startup/preparation code --&gt;
+	&lt;script type="text/javascript" src="babylonprep.js"&gt;&lt;/script&gt;
+
+	&lt;!-- This one contains our cool scene - this file will change and grow --&gt;
+	&lt;script type="text/javascript" src="myscene.js"&gt;&lt;/script&gt;
+
+	&lt;style type="text/css"&gt;
+		html,body,#canvas {
+			width:100%;
+			height:100%;
+			padding:0;
+			margin:0;
+			overflow: hidden;
+		}
+	&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;canvas id="canvas"&gt;&lt;/canvas&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</textarea></form>
+
+<p>For THIS demo, that's all that is needed in the HTML document, so you can save it just like that.</p>
+
+<p>Now let's talk about the two new JS files that we'll be creating:</p>
+
+<p><strong>babylonprep.js file</strong></p>
+
+<p>In a new text editor window... insert the following code and then save it as 'babylonprep.js'. Put it in the same folder/dir
+as your HTML document for now. Later, you could make a new folder called 'scripts' and put all your JS files into it, adjusting
+the SRC paths in all your &lt;script&gt; elements. ie. scripts/babylon.js, scripts/hand.js, scripts/babylonprep.js,
+and scripts/myscene.js</p>
+
+<p>The babylonprep.js file contains all the general re-usable Babylon startup mechanics: loading the engine, testing for WebGL
+support, scaling the scene to browser size, and obviously loading our scene and rendering it. babylonprep.js won't change
+a lot in the future as we now have all the basic scene-startup functions in it. It is VERY re-usable.</p>
+
+<p>Put the code below in that fresh text editor window, and save it as 'babylonprep.js'</p>
+
+<form><textarea id="raw" rows="30" cols="350">window.onload = function(){
+	// Get a 'handle' on the HTML document's CANVAS element
+	var canvas = document.getElementById("canvas");
+
+	// Check support
+	if (!BABYLON.Engine.isSupported()) {
+		window.alert('Browser not supported');
+	}
+	else {
+		// Babylon active! Get a handle on the 'engine'
+		var engine = new BABYLON.Engine(canvas, true);
+
+		// Create my scene (the createScene func is inside of "myscene.js")
+		var scene = createScene(engine);
+
+		// Attach a camera to the canvas context
+		scene.activeCamera.attachControl(canvas);
+
+		// Scene is loaded (hopefully). Now register a render loop to render it continuously
+		engine.runRenderLoop(function () {
+			scene.render();
+		});
+
+		// Be ready for a window resize event should anyone resize its window
+		window.addEventListener("resize", function () {
+			engine.resize();
+		});
+	}
+};
+</textarea></form>
+
+<p> Easy as pie. Notice how we are wedging into window.onload which runs as soon as our HTML 5 document finishes loading.  It
+'starts the ball rolling' if you'll pardon my 3D humor. Got that babylonprep.js file saved? Good deal! Well done.
+Onward to myscene.js... the second of the two new JS files...</p>
+
+<p><strong>myscene.js file</strong></p>
+
+<p>The myscene.js file is all of our created scene. It is about to become our main JS file, where we are going to create all
+of our objects, lights, cameras, actions. As mentioned in the previous JS file, myscene.js must have a function in it called
+'createScene' in order for babylonprep.js to call/use.</p>
+
+<p>As we have learned in the previous section, first, we are creating a basic scene (scene object, camera, light).</p>
+
+<p>In a fresh text editor window... insert the following code, but you don't need to save it until further on.</p>
+
+<form><textarea id="raw" rows="12" cols="350">// Here's that createScene function which gets called from babylonprep.js...
+
+function createScene(engine) {
+	// Creation of the scene
+	var coolscene = new BABYLON.Scene(engine);
+
+	// Add a light to the scene
+	var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 100), coolscene);
+
+	// Add a Arc Rotate Camera
+	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), coolscene);
+</textarea></form>
+
+<p> Still no save is needed. We have not yet created any geometry/models to view. So, now, you can add all the meshes that you
+like! Let's put an assortment of basic 3D objects/elements into myscene.js now...</p>
+
+<form><textarea id="raw" rows="21" cols="350">	// Create a box
+	// Parameters are: name, size of box, and scene to attach the mesh to.
+	var box = BABYLON.Mesh.CreateBox("Box", 6.0, coolscene);
+
+	// Create a sphere
+	// Parameters are: name, number of segments (highly detailed or not), size, scene to attach the mesh.
+	var sphere = BABYLON.Mesh.CreateSphere("Sphere", 10.0, 3.0, coolscene);
+
+	// Create a plane
+	// Parameters are: name, size, and scene to attach the mesh.
+	var plane = BABYLON.Mesh.CreatePlane("Plane", 50.0, coolscene);
+
+	// Create a cylinder
+	// Parameters are: name, height, diameterTop, diameterBottom, tessellation (highly detailed or not), scene, updatable.
+	var cylinder = BABYLON.Mesh.CreateCylinder("Cylinder", 3, 3, 3, 6, coolscene, false);
+
+	// Create a torus
+	// Parameters are: name, diameter, thickness, tessellation (highly detailed or not), scene, updatable.
+	var torus = BABYLON.Mesh.CreateTorus("Torus", 5, 1, 10, coolscene, false);
+</textarea></form>
+
+<p>Now you have a scene with 5 new objects in it, but the default position of all meshes is vector
+zero (x=0, y=0, z=0), so how can you move them? Simply by giving them a new 3D point, a 'Vector3'.
+(Look at <a href="http://youtu.be/7DK8aA2qee8">this video </a> for a vector tutorial).
+So if you want to move your box, maybe add this...</p>
+
+<form><textarea id="raw" rows="2" cols="350">	box.position = new BABYLON.Vector3(-10,0,0);
+</textarea></form>
+
+<p>You can use similar lines to move the other objects as well and as easily.</p>
+
+<p>We are nearly ready to go.  Lastly, return the scene object to the first JS file... and close the function '}' to complete
+the creation of our scene.</p>
+
+<form><textarea id="raw" rows="3" cols="350">	return coolscene;
+}
+</textarea></form>
+
+<p>Your ENTIRE myscene.js should look something like this...</p>
+
+<form><textarea id="raw" rows="20" cols="350">function createScene(engine) {
+	var coolscene = new BABYLON.Scene(engine);
+	var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 0), coolscene);
+	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), coolscene);
+
+	var box = BABYLON.Mesh.CreateBox("Box", 6.0, coolscene);
+	var sphere = BABYLON.Mesh.CreateSphere("Sphere", 10.0, 3.0, coolscene);
+	var plane = BABYLON.Mesh.CreatePlane("Plane", 50.0, coolscene);
+	var cylinder = BABYLON.Mesh.CreateCylinder("Cylinder", 3, 3, 3, 6, coolscene, false);
+	var torus = BABYLON.Mesh.CreateTorus("Torus", 5, 1, 10, coolscene, false);
+
+	box.position = new BABYLON.Vector3(-10,0,0);
+	// sphere.position = new BABYLON.Vector3(-10,0,0);
+	// plane.position = new BABYLON.Vector3(-10,0,0);
+	// cylinder.position = new BABYLON.Vector3(-10,0,0);
+	// torus.position = new BABYLON.Vector3(-10,0,0);
+
+	return coolscene;
+}
+</textarea></form>
+
+<p>If it does... NOW please save myscene.js in the same folder/directory as your HTML file (for now).</p>
+
+<p>And that's it!  The HTML page includes-in (loads) four JS files... babylon.js, hand.js, babylonprep.js, and myscene.js. Put
+your HTML page in a browser, and you should have a tolerable default-textured scene of assorted polygons/geometry.  Ready for
+some fancier things?  I knew you were.  You'll be working almost exclusively in myscene.js from now on, yet will likely always
+be using this same five-document structure for all your future projects... simply renaming myscene.js for new projects, and
+adjusting THAT filename in one of the &lt;script&gt; elements of your HTML page(s).  Essentially, the HTML document and the
+three reusable JS files (babylon.js, hand.js, and babylonprep.js) are a starter kit, and myscene.js will be modified
+very often. Whenever you change the name of myscene.js, be sure to reflect the new name in the corresponding &lt;script&gt;
+element in THAT project's HTML launcher page.</p>
+
+<p> NOTE: If you experience errors involving scene.meshes, or if the 
+cylinder refuses to render, make sure you have 7 parameters in
+the CreateCylinder call, and that you are using babylon.js v1.7 or 
+higher.  Earlier versions of babylon.js used only 6 parameters.
+Babylon.js is continuously evolving, and we like it that way. :)</p>
+
+<br><hr>
+<!-- 03--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>03 Rotation &amp; Scaling</h1>
+
+<p>This time you are going to learn how to move and rotate any kind of objects that you created in our last tutorial.</p>
+
+<img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/shapes2.png" alt="Elements"><p></p>
+
+<p><em>Final result</em></p>
+
+<p>For this scene, we won't change anything in the structure: changes are only on the scene file, in the function called
+'createScene'. As usual, we are beginning the function by writing basic elements of a scene:</p>
+
+<form><textarea id="raw" rows="5" cols="350">function createScene(engine) {
+	var scene = new BABYLON.Scene(engine);
+	var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 100), scene);
+	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), scene);
+</textarea></form>
+
+<p>Then create as many boxes as you want:</p>
+
+<form><textarea id="raw" rows="6" cols="350">	//Creation of 3 boxs and 2 spheres
+	var box1 = BABYLON.Mesh.CreateBox("Box1", 6.0, scene);
+	var box2 = BABYLON.Mesh.CreateBox("Box2", 6.0, scene);
+	var box3 = BABYLON.Mesh.CreateBox("Box3", 6.0, scene);
+	[...]
+</textarea></form>
+
+<p>As we seen earlier, you can now position all the boxes on the scene</p>
+
+<form><textarea id="raw" rows="5" cols="350">	//Positioning the boxes
+	box1.position = new BABYLON.Vector3(-20,0,0);
+	box2.position.x = -10; // same as: box2.position = new BABYLON.Vector3(-20,0,0);
+	box3.position.x = 0;
+</textarea></form>
+
+<p>And now, with the same ease of coding, you can rotate on all axes, and rescale in any size! For example:</p>
+
+<ul>
+
+<li><p>Rotation (angles are in radians)</p></li>
+
+<form><textarea id="raw" rows="6" cols="350">	//Rotate the box around the x axis
+	box1.rotation.x = Math.PI/4; // or box1.rotation = new BABYLON.Vector3(Math.PI/4,0,0);
+
+	//Rotate the box around the y axis
+	box2.rotation.y = Math.PI/6;
+</textarea></form>
+
+<li><p>Scaling</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">	//Scaling of 2x on the x axis
+	box3.scaling.x = 2;
+</textarea></form>
+
+</ul>
+
+<p>Another Babylon's feature is moving an object, relatively to another by creating a link between two meshes. This link
+implies that all parent transformations (position/rotation/scaling) will be combined with the child's transformations.</p>
+
+<form><textarea id="raw" rows="4" cols="350">	//Positioning the box3 relative to the box1
+	box3.parent = box1;
+	box3.position.z = -10;
+</textarea></form>
+
+<h2>
+<a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Now you know how to create and move object on a scene, but all your meshes looks the same way…! Not for long if
+you read next tutorial about textures. <a href="https://github.com/BabylonJS/Babylon.js/wiki/04-Materials">Go to Tuto 04</a></p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/03%20-%20Rotation%20and%20scaling/03%20-%20Rotation%20and%20scaling.zip">HERE</a></p>
+
+<br><hr>
+<!-- 04--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1 class="instapaper_title">04 Materials</h1>
+
+<p>Now that you can create different meshes everywhere in the scene, we are going to give those meshes some materials,
+to define how a mesh looks like.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/mat1.jpg" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<p>First, as you are now used to, we create a new basic scene in the 'myscene.js' file:</p>
+
+<form><textarea id="raw" rows="15" cols="350">function createScene(engine) {
+	var scene = new BABYLON.Scene(engine);
+	var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 100), scene);
+	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), scene);
+
+	//Creation of spheres
+	var sphere1 = BABYLON.Mesh.CreateSphere("Sphere1", 10.0, 6.0, scene);
+	var sphere2 = BABYLON.Mesh.CreateSphere("Sphere2", 2.0, 7.0, scene);
+	var sphere3 = BABYLON.Mesh.CreateSphere("Sphere3", 10.0, 8.0, scene);
+	[...]
+
+	//Positioning the meshes
+	sphere1.position.x = -40;
+	sphere2.position.x = -30;
+</textarea></form>
+
+<p>For now, you only have some grey-lighted meshes. To apply a material on it, you have to create a new material object like this:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
+</textarea></form>
+
+<p>And apply this material to the object of your choice, e.g.:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	sphere1.material = materialSphere1;
+</textarea></form>
+
+<p>Or, do both at once:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	sphere1.material = new BABYLON.StandardMaterial("texture1", scene);
+</textarea></form>
+
+<p>"I tested my scene, and nothing changed!"</p>
+
+<p>Exactly, because this material is the default one, you have to customize it as you want. You won't change the mesh
+itself, but the material. So how can I shape my material to give the perfect look to my object?</p>
+
+<ul>
+<li><strong>Transparency</strong> (alpha channel)</li>
+</ul>
+
+<p>To apply some alpha to a material, written in percent (%):</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.alpha = 0.5;
+</textarea></form>
+
+<ul>
+<li><strong>Diffuse</strong></li>
+</ul>
+
+<p>The diffuse is the native color of the object when it is lighted. You
+ can specify a solid color with the 'diffuseColor' property:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.diffuseColor = new BABYLON.Color3(1.0, 0.2, 0.7);
+</textarea></form>
+
+<p>Or, you can use a texture:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.diffuseTexture = new BABYLON.Texture("grass.png", scene);
+</textarea></form>
+
+<br><hr>
+<p><strong>More About Textures</strong>:  Make sure you have the correct
+ path to your image (relative or absolute path). Supported image formats
+ include JPG, PNG, JPEG, BMP, etc. (every image format available on your
+ browser). If you want to translate your texture on your mesh, you can 
+use 'uOffset' and 'vOffset'. If you want to repeat/tile an image pattern
+ (e.g. grass texture), you can use 'uScale' and 'vScale':</p>
+
+<form><textarea id="raw" rows="3" cols="350">	materialSphere1.diffuseTexture.uScale = 5.0;
+	materialSphere1.diffuseTexture.vScale = 5.0;
+</textarea></form>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/mat2.png" alt="tof"></p>
+
+<p>And if your texture have some alpha, simply specify it:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.diffuseTexture.hasAlpha = true;
+</textarea></form>
+<br><hr>
+
+
+
+<ul>
+<li><strong>Emissive</strong></li>
+</ul>
+
+<p>The emissive is the color produced by the object. You can specify a solid color with the 'emissiveColor' property:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.emissiveColor = new BABYLON.Color3(1.0, 0.2, 0.7);
+</textarea></form>
+
+<p>Or, you can use a texture:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.emissiveTexture = new BABYLON.Texture("grass.png", scene);
+</textarea></form>
+
+<p> See 'More About Textures' section of 'Diffuse'... to learn more 
+about emissiveTexture. Remember to change each occurence of 'diffuse'...
+ to 'emissive', of course.</p>
+
+<ul>
+<li><strong>Ambient</strong></li>
+</ul>
+
+<p>The ambient can be seen as a second level of diffuse. The produced 
+color is multiplied to the diffuse color. This is especially useful if 
+you want to use light maps baked into textures.. You can specify a solid
+ color with the 'ambientColor' property:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.ambientColor = new BABYLON.Color3(1.0, 0.2, 0.7);
+</textarea></form>
+
+<p>Or, you can use a texture:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.ambientTexture = new BABYLON.Texture("grass.png", scene);
+</textarea></form>
+
+<p> See 'More About Textures' section of 'Diffuse'... to learn more 
+about ambientTexture. Remember to change each occurence of 'diffuse'... 
+to 'ambient', of course.</p>
+
+
+<ul>
+<li><strong>Specular</strong></li>
+</ul>
+
+<p>The specular is the color produced by a light reflecting on a 
+surface. You can specify a solid color with the 'specularColor' 
+property:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.specularColor = new BABYLON.Color3(1.0, 0.2, 0.7);
+</textarea></form>
+
+<p>Or, you can use a texture:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.specularTexture = new BABYLON.Texture("grass.png", scene);
+</textarea></form>
+
+<p> See 'More About Textures' section of 'Diffuse'... to learn more 
+about specularTexture. Remember to change each occurence of 'diffuse'...
+ to 'specular', of course.</p>
+
+<p>The size of the reflection is defined by the 'specularPower' property.</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.specularPower = 32;
+</textarea></form>
+
+
+<ul>
+<li><strong>Back-Face Culling</strong></li>
+</ul>
+
+<p>'Back-face culling' determines whether a polygon of a graphical object is visible or not. In short, if active,
+Babylon engine won't render hidden face of this material. It's true by default, but can be swapped to false if you need to.</p>
+
+<p>In this example, a texture have some alpha, and back-face culling needs to be set to false to see the inside face:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/mat3.png" alt="tof"></p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.backFaceCulling = false;
+</textarea></form>
+
+<ul>
+<li><strong>WireFrame</strong></li>
+</ul>
+
+<p>You can see your object in Wireframe by writing:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	materialSphere1.wireframe = true;
+</textarea></form>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/mat4.png" alt="tof"></p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Great, your scene is better than ever with those materials! Later we will see how to use advanced techniques with materials,
+but for now, we have to learn <a href="https://github.com/BabylonJS/Babylon.js/wiki/05-Cameras">how to use cameras</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/04%20-%20Materials/04%20-%20Materials.zip">HERE</a></p>
+
+<br><hr>
+<!-- 05--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>05 Cameras</h1>
+
+<p>To continue building our scene, let's see how to manage cameras.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/shapes3.png" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<p>Cameras management is pretty simple: Babylon.js supports 3 kind of cameras:</p>
+
+<ul>
+<li>FreeCamera is a FPS like camera where you control the camera with the cursors keys and the mouse</li>
+<li>TouchCamera is a camera controlled with touch events (it requires 'hand.js' to work, always included in our demos)</li>
+<li>ArcRotateCamera is a camera that rotates around a given pivot. It
+can be controlled with the mouse or touch events (and it also requires
+'hand.js' to work)</li>
+</ul>
+
+<p>You can create as much cameras as you want but only one camera can be active at a time. Here is how to write
+the code for each of those cameras:</p>
+
+<form><textarea id="raw" rows="5" cols="350">// FreeCamera &gt;&gt; You can move around the world with mouse and keyboard
+// Parameters : name, position, scene
+
+	var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, 5), scene);
+</textarea></form>
+<br>
+
+<form><textarea id="raw" rows="5" cols="350">// TouchCamera &gt;&gt; Move in your world with your touch screen
+// Parameters : name, position, scene
+
+	var touchCamera = new BABYLON.TouchCamera("TouchCamera", new BABYLON.Vector3(0, 0, 10), scene);
+</textarea></form>
+<br>
+
+<form><textarea id="raw" rows="5" cols="350">// ArcRotateCamera &gt;&gt; Camera turning around a 3D point (here Vector zero)
+// Parameters : name, alpha, beta, radius, target, scene
+
+	var arcCamera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), scene);
+</textarea></form>
+
+<p>All the cameras can automatically handle inputs for you by calling 'attachControl' function on the canvas. And you
+can revoke the control by using 'detachControl' function:</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Attach the camera to the scene
+	camera.attachControl(canvas);
+</textarea></form>
+
+<p>Note that you can change some parameters later, depending of the type of cameras:
+Change target/position of ArcRotate camera:</p>
+
+<form><textarea id="raw" rows="5" cols="350">// Change camera parameters
+
+	arcCamera.target = new BABYLON.Vector3(3, 0, 0);
+	arcCamera.setPosition(new BABYLON.Vector3(0, 0, 50));
+</textarea></form>
+
+<p>Change sensibility of Touch camera:</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Sensibility
+	touchCamera.moveSensibility = 100 ;
+</textarea></form>
+
+<p>Apply gravity to Free camera: later in these tutorials ;)</p>
+
+<h2>
+<a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Now you can control how to see your scene, how to move around your meshes. To give your scene a more realistic effect,
+we are going to see <a href="https://github.com/BabylonJS/Babylon.js/wiki/06-Lights">how to manage lights</a>. See you soon.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/05%20-%20Cameras/05%20-%20Cameras.zip">HERE</a></p>
+
+<br><hr>
+<!-- 06--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>06 Lights</h1>
+
+<p>In the previous section, we discovered how to use materials to define the aspect of your meshes. Now we are ready to
+talk about lights. Lights are used to produce the diffuse and specular color received by each pixel. This color is then used
+by materials to determine the final color of every pixel.</p>
+
+<blockquote><p><strong>Babylon.js</strong> allows you to create and register as many lights as you want but beware because the
+StandardMaterial can handle only 4 simultaneous lights (the first four <strong>enabled</strong> lights of the lights list)
+</p></blockquote>
+
+<p>During this article, I will show you how to use every kind of lights supported by <strong>babylon.js</strong>.</p>
+
+<h3>Activating/Deactivating lights</h3>
+
+<p>Every light can be deactivated by setting its <em>isEnabled</em> property to false.</p>
+
+<p>But you can also control the global intensity of the light with the <em>intensity</em> property.</p>
+
+<h3>The point light</h3>
+
+<p>A point light is a light defined by an unique point. The light is emitted in every direction from this point.</p>
+<p>You can control the color of the light with the <em>diffuse</em> and <em>specular</em> properties:</p>
+
+<form><textarea id="raw" rows="4" cols="350">var light0 = new BABYLON.PointLight("Omni0", new BABYLON.Vector3(1, 10, 1), scene);
+light0.diffuse = new BABYLON.Color3(1, 0, 0);
+light0.specular = new BABYLON.Color3(1, 1, 1);&lt;/xmp&gt;
+</textarea></form>
+
+<p><img title="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/red_dif_pnt.png" border="0"><br>
+Red diffuse point light with white specular</p>
+
+<h3>The directional light</h3>
+
+<p>A directional light is defined by a direction (what a surprise!). The light is emitted from everywhere to a specific
+direction and has an infinite range.</p>
+
+<p>Like a point light, you can control the color of the light with the <em>diffuse</em> and <em>specular</em> properties:</p>
+
+<form><textarea id="raw" rows="4" cols="350">var light0 = new BABYLON.DirectionalLight("Dir0", new BABYLON.Vector3(0, -1, 0), scene);
+light0.diffuse = new BABYLON.Color3(1, 0, 0);
+light0.specular = new BABYLON.Color3(1, 1, 1);
+</textarea></form>
+
+<p><img title="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/red_dif_dir.png" border="0"><br>
+<em>Red diffuse directional light with white specular</em></p>
+
+<h3>The spot light</h3>
+
+<p>A spot light is defined by a position, a direction, an angle and an exponent. These values define a cone of light starting
+from the position toward the direction. The angle defines the size of the spotlight beam and the exponent defines the speed of
+the decay of the light with distance:</p>
+
+<p><img title="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/spot_cone.png" border="0" height="339" width="314"></p>
+
+<form><textarea id="raw" rows="4" cols="350">var light0 = new BABYLON.SpotLight("Spot0", new BABYLON.Vector3(0, 30, -10), new BABYLON.Vector3(0, -1, 0), 0.8, 2, scene);
+light0.diffuse = new BABYLON.Color3(1, 0, 0);
+light0.specular = new BABYLON.Color3(1, 1, 1);
+</textarea></form>
+
+<p><img title="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/red_dif_spt.png" border="0"><br>
+<em>A red diffuse spotlight with white specular and a 0.8 radians wide cone. The exponent value is 2.</em></p>
+
+<h3>The hemispheric light</h3>
+
+<p>Hemispheric light represents a simple and easy way to simulate realistic ambient light. An hemispheric light is
+defined by a direction to the sky and by 3 colors: one for the diffuse (the sky color), one for the ground
+(the color when the pixel is not towards the sky) and one for the specular.</p>
+
+<form><textarea id="raw" rows="5" cols="350">var light0 = new BABYLON.HemisphericLight("Hemi0", new BABYLON.Vector3(0, 1, 0), scene);
+light0.diffuse = new BABYLON.Color3(1, 1, 1);
+light0.specular = new BABYLON.Color3(1, 1, 1);
+light0.groundColor = new BABYLON.Color3(0, 0, 0);
+</textarea></form>
+
+<p><img title="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/monkey.png" border="0" height="465" width="584"><br><em>White/black hemispheric light</em></p>
+
+<h3>What's next?</h3>
+
+<p>If you want to go more deeply into <strong>babylon.js</strong>, here are some useful links:</p>
+
+<ul>
+  <li>Introducing Babylon.js: <a href="http://blogs.msdn.com/b/eternalcoding/archive/2013/06/27/babylon-js-a-complete-javascript-framework-for-building-3d-games-with-html-5-and-webgl.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/06/27/babylon-js-a-complete-javascript-framework-for-building-3d-games-with-html-5-and-webgl.aspx</a></li>
+
+  <li>How to load a scene exported from Blender: <a href="http://blogs.msdn.com/b/eternalcoding/archive/2013/06/28/babylon-js-how-to-load-a-babylon-file-produced-with-blender.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/06/28/babylon-js-how-to-load-a-babylon-file-produced-with-blender.aspx</a></li>
+
+  <li>Unleash the StandardMaterial for your<strong> </strong>babylon.js game: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx</a></li>
+
+  <li>Using multi-materials: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx</a></li>
+
+  <li>Creating a convincing world for your game with custom shaders, height maps and skyboxes: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx</a></li>
+
+
+<br><hr>
+<!-- 07--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>07 Animation</h1>
+
+<p>Your scene is beginning to look great, but it is very static. To put dynamics in it, we are going to learn how to move your
+meshes as you decide.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/anim.png" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<p>There is two different ways of doing animations in your scene. The 
+first possibility is to define a collection of keys and
+saying your object situation at each key. The second one is for more 
+complex animations, when you change animation code at run time.</p>
+
+<h3>Basic animation</h3>
+
+<p>The animation is based on objects called Animation (!!). An Animation is defined by various properties and a collection of
+keys. Every key represents the value of the Animation at a given time.  To achieve our today's scene, we begin by creating our
+environment:</p>
+
+<form><textarea id="raw" rows="8" cols="350">function createScene(engine) {
+	// Basic scene goes here...
+	// As usual: [scene, light, camera]
+
+	// Creation of sphere
+	var box1 = BABYLON.Mesh.CreateBox("Box1", 10.0, scene);
+	box1.position.x = -20;
+</textarea></form>
+
+<p>Our goal: move this 'box1'. First, create our Animation object:</p>
+
+<form><textarea id="raw" rows="3" cols="350">	var animationBox = new BABYLON.Animation("Animation", "scaling.x", 30,
+		BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+</textarea></form>
+
+<p>Much information is in the parameters:</p>
+
+<ol>
+<li><p>Name of this animation, nothing more.</p></li>
+<li><p>The property concerned. This can be any mesh property, depending of what you want to change. Here we want to scale
+an object on X axis, so it will be 'scaling.x'.</p></li>
+
+<li><p>Frame per second requested: highest FPS possible in this animation</p></li>
+
+<li><p>Type of this change. Here you say what kind of value will be modified: is it a float (e.g. a translation),
+a vector (e.g. a direction), or a quaternion. Exact values are:</p></li>
+
+<ul>
+<li><em>BABYLON.Animation.ANIMATIONTYPE</em>FLOAT_</li>
+<li><em>BABYLON.Animation.ANIMATIONTYPE</em>VECTOR3_</li>
+<li><em>BABYLON.Animation.ANIMATIONTYPE</em>QUATERNION_</li>
+</ul>
+
+</ol>
+
+<p>5. Finally, you have to advise what kind of behavior this animation will take at their upper limit:</p>
+
+<ul>
+<li>Use previous values and increment it: <em>BABYLON.Animation.ANIMATIONLOOPMODE</em>RELATIVE_</li>
+<li>Restart from initial value: <em>BABYLON.Animation.ANIMATIONLOOPMODE</em>CYCLE_</li>
+<li>Keep their final value: <em>BABYLON.Animation.ANIMATIONLOOPMODE</em>CONSTANT_</li>
+</ul>
+
+<p>Now that we have our Animation object, it is time to say how those values will be modified. In our case, we want to scale
+our box, but not in a linear way: it must be faster when it became larger, and slower when it became thinner. So:</p>
+
+<form><textarea id="raw" rows="21" cols="350">	// An array with all animation keys
+	var keys = [];
+
+	// At the animation key 0, the value of scaling is "1"
+	keys.push({
+		frame: 0,
+		value: 1
+	});
+
+	// At the animation key 20, the value of scaling is "0.2"
+	keys.push({
+		frame: 20,
+		value: 0.2
+	});
+
+	// At the animation key 100, the value of scaling is "1"
+	keys.push({
+		frame: 100,
+		value: 1
+	});
+</textarea></form>
+
+<p>Next, two important steps:</p>
+
+<p>Adding the animation array to the animation object:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	animationBox.setKeys(keys);
+</textarea></form>
+
+<p>Link this animation to our box:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	box1.animations.push(animationBox);
+</textarea></form>
+
+<p>Finally, you can launch your animation in one line of code, at any time in your application:</p>
+
+<form><textarea id="raw" rows="2" cols="350">	scene.beginAnimation(box, 0, 100, true);
+</textarea></form>
+
+<p>You can also choose to only play a part of the animation (here from 0 to 100), and choose to loop this animation (here is true).</p>
+
+<p>And you are done! Don't hesitate to combine many animation for one object by pushing different transformation ;)</p>
+
+<h3>Complex animation</h3>
+
+<p>The complex animation let you choose everything at each frame of the animation (each tick). The code computed at run time
+must be located in this function:</p>
+
+<form><textarea id="raw" rows="4" cols="350">scene.registerBeforeRender(function () {
+	// Your code here
+});
+</textarea></form>
+
+<p>This function can be very useful for complex animation like games, where characters have to move depending on many parameters.</p>
+
+<p>Don't hesitate to combine those two types of animations: if well done it's very powerful.</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Your scene is now becoming dynamic, and all your meshes can move in all directions! Feel free to try different animations on
+different objects, then go back to learn all about <a href="https://github.com/BabylonJS/Babylon.js/wiki/08-Sprites">Sprites</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/07%20-%20Animation/07%20-%20Animation.zip">HERE</a></p>
+
+<br><hr>
+<!-- 08--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>08 Sprites</h1>
+
+<p>In this tutorial, we are going to learn how manipulate Sprites. Sprites are 2D image/animation, and we will use them to display
+an image with alpha channel always facing the camera.</p>
+
+<p>Nowadays, those sprites are often used to display animated characters, for particles, or to simulate 3D complex objects
+like trees.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/sprite1.png" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<h3>Sprite Manager</h3>
+
+<p>If you want to use sprites, you need to create a 'sprite manager' to optimize GPU resources by grouping in one place
+multiple instances of a sprite. This manager is mandatory, even if you want to create one sprite. You just have to write:</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Create a sprite manager
+var spriteManagerTrees = new BABYLON.SpriteManager("treesManagr", "Assets/Palm-arecaceae.png", 2000, 800, scene);
+</textarea></form>
+
+<p>When creating a manager, you have to decide a few parameters:</p>
+
+<ul>
+<li>Name: a name for this manager</li>
+<li>The 2D image URL (most of time, you would rather use an image format which contain alpha channel like .PNG)</li>
+<li>The capacity of this manager : the maximum number of instances in
+this manager (in our example, we could create 2000 instances of trees)</li>
+<li>The cell size, corresponding to the size of your image, like we'll see below.</li>
+<li>The actual scene, to add this manager to the scene</li>
+</ul>
+
+<p>To give another example, look at this snippet:</p>
+
+<form><textarea id="raw" rows="2" cols="350">var spriteManagerPlayer = new BABYLON.SpriteManager("playerManagr","Assets/Player.png", 2, 64, scene);
+</textarea></form>
+
+<p>This time, we only want 2 instances, and we said that our sprite's size is 64. Here is what our image look like:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/sprite2.png" alt="Elements"></p>
+
+<p>Each image of a sprite must be contained in a 64 pixel square, no more no less.</p>
+
+<h3>Create an instance</h3>
+
+<p>Now that we have our manager, we can create instances of our sprite
+linked to this manager. Creating an instance is as easy as:</p>
+
+<form><textarea id="raw" rows="2" cols="350">var playerInstance = new BABYLON.Sprite("player", spriteManagerPlayer);
+</textarea></form>
+
+<p>Voilà, you have got your sprite displayed!</p>
+
+<p>If you want to add parameters to this instance, you can manipulate it like any other meshes:</p>
+
+<form><textarea id="raw" rows="2" cols="350">player.position.y = -0.3;
+</textarea></form>
+
+<p>But because it's a sprite, you may use specific parameters: you can change their size, of their orientation:</p>
+
+<form><textarea id="raw" rows="4" cols="350">player.size = 0.3;
+player.angle = Math.PI/4;
+player.invertU = -1;
+</textarea></form>
+
+<h3>Sprite animation</h3>
+
+<p>One of the advantage of sprites is animations. You only have to load one large image file which will contain all animation
+images, one next to another. Just be careful to respect the square size you had specified  in your manager (e.g. 64 pixel).</p>
+
+<p>Here is what a complete sprite image looks like:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/sprite3.png" alt="Elements" width="98%"></p>
+
+<p>This will animate our players in more than 40 positions, depending on the situation (walking, jumping, etc). Babylon engine
+is automatically reading sprites on more than one line, so no more works for you :)</p>
+
+<p>If you want to begin the animation, simply call this function:</p>
+
+<form><textarea id="raw" rows="2" cols="350">player.playAnimation(0, 40, true, 100);
+</textarea></form>
+
+<p>By calling « playAnimation » with those parameters, our player will be animated from frame 0 to frame 40. The third
+parameters is indicating if animation loop or not. And the last one is the delay between two frames (smaller it is, faster the
+animation is).</p>
+
+<p>Finally, if you want to go to a precise image (e.g. the last one, when the character is not moving), just call:</p>
+
+<form><textarea id="raw" rows="2" cols="350">player.cellIndex = 44;
+</textarea></form>
+
+<h2>
+<a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Don't hesitate to use sprites in your scene: they are not resource intensive, and they really can help keeping high frame
+rate in your application.</p>
+
+<p>Now you know how to create a complete simple dynamic scene and it is going to be important to talk
+about <a href="https://github.com/BabylonJS/Babylon.js/wiki/09-Collisions-by-gravity">collisions</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/08%20-%20Sprites/08%20-%20Sprites.zip">HERE</a></p>
+
+<br><hr>
+<!-- 09--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>09 Collisions by gravity</h1>
+
+<p>Did you ever play a FPS (First Person Shooter) game? We are going to simulate the same camera
+movements: the camera is on the floor, in collision with the ground and any objects.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/gravcoll1.png" alt="Elements"></p>
+
+<p><em>Final result</em></p>
+
+<p>To replicate this movement, we have to do this in 3 simple steps:</p>
+
+<h3>1 - Define and apply gravity</h3>
+
+<p>The first thing to do is to define our gravity vector, defining the G-force. In a classic world, on earth, the direction
+of the force of gravity is down along the Y axis, but be free to change it!</p>
+
+<form><textarea id="raw" rows="2" cols="350">scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
+</textarea></form>
+
+<p>Gravity can be applied to any camera that you have defined previously in your code.</p>
+
+<form><textarea id="raw" rows="2" cols="350">camera.applyGravity = true;
+</textarea></form>
+
+<h3>2 - Define the ellipsoid</h3>
+
+<p>An important step is now to define the ellipsoid around our camera. 
+This ellipsoid represents our player's dimensions: a collision
+event will be raised when a mesh is in contact with this ellipsoid, 
+preventing the camera from being too close to this mesh:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/gravcoll2.jpg" alt="Ellipsoid"></p>
+
+<p>This ellipsoid exists by default, but changing its values will make 
+you taller, bigger, smaller, thinner, depending upon the axis.</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Set the ellipsoid around the camera (e.g. your player's size)
+camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+</textarea></form>
+
+<h3>3 - Apply collision</h3>
+
+<p>Finally, when those previous elements are ready, we just have to declare that we are interested in collisions:</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Enable Collisions
+scene.collisionsEnabled = true;
+</textarea></form>
+
+<p>And what are the meshes which could be in collision with our camera:</p>
+
+<form><textarea id="raw" rows="3" cols="350">ground.checkCollisions = true;
+box.checkCollisions = true;
+</textarea></form>
+
+<p>That's it!</p>
+
+<p>Now, your camera is going to fall on y-axis until it collide our ground.</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Great, now you can develop a real FPS game! But maybe you would like to know when a mesh is in collision with another
+mesh? Because this is exactly the purpose of our <a href="https://github.com/BabylonJS/Babylon.js/wiki/10-Object-collisions">next
+tutorial</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/09%20-%20Collisions%20Gravity/09%20-%20Collisions%20Gravity.zip">HERE</a></p>
+
+
+<br><hr>
+<!-- 10--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>10 Object collisions</h1>
+
+<p>In dynamic scenes, objects are moving and interacting with each other. To get the best rendering, you will have to know when
+your meshes are in contact with one another.</p>
+
+<p>In this example, we are going to discover how the collision system works:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/objcoll1.png" alt="Collisions"></p>
+<div style="text-align:center;padding:2pt;font-weight:bold;display:inline-block;width:313px;background-color:deepskyblue;">mesh-to-mesh w/precise=false (fast)</div>
+<div style="text-align:center;padding:2pt;font-weight:bold;display:inline-block;width:313px;background-color:deepskyblue;">mesh-to-mesh w/precise=true (slow)</div>
+<div style="text-align:center;padding:2pt;font-weight:bold;display:inline-block;width:313px;background-color:deepskyblue;">mesh-to-point in space</div>
+
+<p>Here we will talk about the two methods of collision detection.  The first one is to raise a collision event when two meshes are
+in contact, and the other one is detecting contact between a mesh and a single point in world space.</p>
+
+<p>Looking at the scene in the picture above, the first and second 
+(leftmost and middle) spheres (balloons) will collide against
+the ground if they travel toward it.  The last one (rightmost) 
+illustrates a collision between a mesh and a single point in world
+space. Once you have created this basic scene (or grab it from the 
+zipped source code at the link just below), this is how to
+check collisions:</p>
+
+<h3>Intersected mesh</h3>
+
+<p>The objective here is to test for contact between our balloons and the ground/plane.</p>
+
+<p>We are going to use the 'intersectsMesh()' function with two parameters: the name of the mesh to be checked (a string), and
+the precision of the intersection (a boolean).</p>
+
+<form><textarea id="raw" rows="6" cols="350">if (balloon1.intersectsMesh(plan1, false)) {
+   balloon1.material.emissiveColor = new BABYLON.Color4(1, 0, 0, 1);
+} else {
+   balloon1.material.emissiveColor = new BABYLON.Color4(1, 1, 1, 1);
+}
+</textarea></form>
+
+<p>To avoid costly calculation by checking many details on a mesh, Babylon engine creates a bounding box around the object, and
+tests the intersection between this bounding box, and the mesh in question. Here is an example of a bounding box:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/objcoll2.png" alt="Collisions"></p>
+
+<p>But this bounding box can be more or less precise, and that's why we have our second parameter. In short, if this
+parameter is set to true (its false by default), then the bounding box is closer to the mesh (OBB bounding type), but
+it's a more costly calculation. Be aware that this type of bounding box is especially useful when your mesh is rotating.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/objcoll3.png" alt="Collisions"></p>
+
+<p>Think carefully about the collision details you need before you choose. But you can test collision accuracy with both
+precision settings. Leave precise false, see if it works for you.  If not, try precise set to TRUE.</p>
+
+<p>If you want more information about this second parameter, you can have a look to this Wikipedia page, especially
+about AABB and OBB mode: <a href="http://en.wikipedia.org/wiki/Bounding_volume">http://en.wikipedia.org/wiki/Bounding_volume</a></p>
+
+<h3>Intersected point</h3>
+
+<p>The other function (and collision type) you can use is 'intersectsPoint()' with a specific point, like this:</p>
+
+<form><textarea id="raw" rows="5" cols="350">var pointToIntersect = new BABYLON.Vector3(10, -5, 0);
+if (balloon3.intersectsPoint(pointToIntersect)){
+   balloon3.material.emissiveColor = new BABYLON.Color4(1, 0, 0, 1);
+}
+</textarea></form>
+
+<p>We defined a precise point in our scene, and if our balloon intersects this point, wherever on the balloon, then the event is
+raised and we change the color of the balloon. You can pretend that the tiny green sphere in the picture is not really there.
+I just used it to show WHERE the point in space MIGHT BE.  In a real application, it will often be invisible, but that's not a
+requirement.  A mesh COULD be covering that point in space that you have selected.  In these early days, I suggest that you
+NOT put any collsion testing functions on any object that is parked atop a collision intersect POINT.</p>
+
+<p>Aw heck, since we are here, lets talk about a textureless (invisible)
+ sphere sitting atop a point-in-space collision detector.
+Let's pretend... that the point in space is an invisible BLACK HOLE, and
+ you don't want to accidentally fly your spacecraft
+into it.  So, an invisible sphere is 'around' the intersect POINT, and 
+IT COULD have a mesh-to-mesh collision detector on it. WHEN/IF
+your spacecraft comes in contact with that surrounding sphere, the 
+onboard computers sound-off "Warning, warning, black hole nearby,
+take evasive action immediately!" The mesh-to-mesh 
+(spacecraft-to-surrounderSphere) acts as an early warning for the 
+mesh-to-point
+(spacecraft-to-blackHole) POINT intersect collision detector.  See how 
+that could be used nicely?  Such a thing might be called
+a 'proximity test'.  Babylon.js can do it all for you... once you get to
+ know the system.  That's why we're here, right? :)</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>With those two functions, your scene is becoming a lot more dynamic: you can define a specific reaction to your object,
+and begin to introduce physics notions into your scene.</p>
+
+<p>In our next tutorial, you will discover how to
+<a href="https://github.com/BabylonJS/Babylon.js/wiki/11---Picking-collisions">check collisions between your scene and the mouse</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/10%20-%20Collisions%20Intersect/10%20-%20Collisions%20Intersect.zip">HERE</a></p>
+
+
+<br><hr>
+<!-- 11--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>11 Picking (clicking) collisions</h1>
+
+<p>The last collision type could be very useful for you: it's picking an object with your mouse. The main difficulty is to
+click on a 3D object whereas your screen is a flat 2D display.</p>
+
+<p>Let's see how we can get your mouse position transposed in your 3D scene by this gun shooting example:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/pickcoll.png" alt="Picking"></p>
+
+<p><em>Final result</em></p>
+
+<p>Babylon engine lets you do this very easily by giving you useful functions.</p>
+
+<p>First of all, after creation of a plane representing the wall, and a plane with our impact's picture, we have to detect a
+click on the UI (User Interface). Once the event is raised, use the function 'pick' to get some powerful information about
+the relation between your click and your scene.</p>
+
+<form><textarea id="raw" rows="6" cols="350">// When click event is raised
+window.addEventListener("click", function (evt) {
+   // We try to pick an object
+   var pickResult = scene.pick(evt.clientX, evt.clientY);
+});
+</textarea></form>
+
+<p>The pickResult object is mainly composed of 4 information:</p>
+
+<ol>
+<li><em>hit</em> (bool): « True » if your click hits an object in the scene.</li>
+
+<li><em>distance</em> (float): the 'distance' between the active camera and your hit (infinite if no mesh selected)</li>
+
+<li><em>pickedMesh</em> (BABYLON.Mesh): if you hit an object, this is the selected mesh. If not, it's null.</li>
+
+<li><em>pickedPoint</em> (BABYLON.Vector3): the point you have clicked, transformed in 3D coordinates depending on the object
+you've clicked. Null if no hits.</li>
+</ol>
+
+<p>Now we have all the data we needed to build our scene. We just have to position our gun's impact when the user clicks on
+the plane:</p>
+
+<form><textarea id="raw" rows="6" cols="350">// if the click hits the ground object, we change the impact position
+if (pickResult.hit) {
+            impact.position.x = pickResult.pickedPoint.x;
+            impact.position.y = pickResult.pickedPoint.y;
+}
+</textarea></form>
+
+<p>Fast, and easy, isn't it?</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>This collision method is convenient in a lot of situations: once you have to use mouse events, think using those functions
+to increase your application's development.</p>
+
+<p>Now you should know everything about collisions, so it's time to move on to a classic effect
+in 3D : <a href="https://github.com/BabylonJS/Babylon.js/wiki/12-Particles">particles</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/11%20-%20Collisions%20PickResult/11%20-%20Collisions%20PickResult.zip">HERE</a></p>
+
+<br><hr>
+
+<!-- 12--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>12 Particles</h1>
+
+<p>This tutorial is going to talk about particle system in BabylonJS. Particles are often small sprites used to simulate hard
+to reproduce phenomena like fire, smoke, water, or abstract visual effect like magic.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/particle1.png" alt="Particles"></p>
+
+<p><em>Final result</em></p>
+
+<p>To perform this magic trick, the first thing to do is to create a new object, which will be our emitter. In our case, a box
+will be our rendering object, representing our fountain.</p>
+
+<form><textarea id="raw" rows="2" cols="350">var fountain = BABYLON.Mesh.CreateBox("fountain", 1.0, scene);
+</textarea></form>
+
+<p>The emitter acts as the source of the particles, and its location in 3D space determines where they are generated and
+whence they proceed. So pay attention to the location/rotation of this object. In our case, the emitter is our fountain,
+but if you need, you can use only a vector (BABYLON.Vector3) as an emitter.</p>
+
+<p>Now, get into the particle system by creating a new ParticleSystem object:</p>
+
+<form><textarea id="raw" rows="2" cols="350">var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
+</textarea></form>
+
+<p>Nothing really new, except the second parameter, which is the maximum number of particles. An important part is to define
+the texture of each particle. Each has the same texture, so choose carefully which one you want. But you can always put
+mopre than one particle system atop each other, or change textures at any time mid-emitting.  That's the fancy stuff. Our
+particle picture (texture) is going to be this one:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/flare.png" alt="Flare"></p>
+
+<p>To define particle's texture, you just have to write:</p>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.particleTexture = new BABYLON.Texture("Flare.png", scene);
+</textarea></form>
+
+<p>On this texture, you can use an optional mask to filter some colors, or a part of the alpha channel.</p>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.textureMask = new BABYLON.Color4(0.1, 0.8, 0.8, 1.0);
+</textarea></form>
+
+<p>This is the output of this configuration:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/particle3.png" alt="TextureMask"></p>
+
+<p>The last main thing to do is to define the particle emitter that we talked about earlier:</p>
+
+<form><textarea id="raw" rows="3" cols="350">// Where the particles comes from
+particleSystem.emitter = fountain; // the starting object, the emitter
+</textarea></form>
+
+<p>Now you should see your particle systems working. But it won't be our final result before we refine some parameters:</p>
+
+<ul>
+<li><p><strong>Box around the emitter</strong> - Our emitter is the center of particles source, but if you want
+your particles emits from more than one point, then you can define an entire box:</p></li>
+</ul>
+
+<form><textarea id="raw" rows="3" cols="350">particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting all From
+particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // To...
+</textarea></form>
+
+<p>As you can see, particles are emitted from different position on the X-axis:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/particle4.png" alt="EmitBox"></p>
+
+<ul>
+<li><p><strong>Color</strong> - Now you can give some colors to your particles. Color one and two are combined, and
+the 'colorDead' is the color that the particle takes-on... just before it disappears.</p></li>
+
+<form><textarea id="raw" rows="5" cols="350">// Colors of all particles (split in 2 + specific color before dispose)
+particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+</textarea></form>
+
+<li><p><strong>Size of particles</strong> - I think this parameter is self-explanatory.</p></li>
+
+<form><textarea id="raw" rows="4" cols="350">// Size of each particle (random between...)
+particleSystem.minSize = 0.1;
+particleSystem.maxSize = 0.5;
+</textarea></form>
+
+<li><p><strong>LifeTime</strong> - This is the amount of time each particle lives... before its removed from the scene.</p></li>
+
+<form><textarea id="raw" rows="4" cols="350">// Life time of each particle (random between...)
+particleSystem.minLifeTime = 0.3;
+particleSystem.maxLifeTime = 1.5;
+</textarea></form>
+
+<li><p><strong>Emit rate</strong> - This is the density of particles, the rate of particle flow:</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.emitRate = 1000;
+</textarea></form>
+
+</ul>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/particle5.png" alt="emitRate"></p>
+
+<p>Now for something interesting if you want to launch only a few particles at once. For example, if you want to emit only 300
+particles:</p>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.manualEmitCount = 300;
+</textarea></form>
+
+<p>Be warned, the stream is not continuous... its a limited number and then it stops. This is a one-shot particle
+emission, so this function is ignoring any user-set 'emitRate' parameter (and likely other parameters) once its completed.</p>
+
+<ul>
+<li><p><strong>Mode</strong> - You can choose between 'BLENDMODE_ONEONE' (default choice: source color is added
+to the destination color without alpha affecting the result), and 'BLENDMODE_STANDARD' (to blend current color and particle
+color using particle's alpha).</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+</textarea></form>
+
+<li><p><strong>Gravity</strong> - You can use gravity if you want to give an orientation to your particles (e.g.: fired particles
+are along the Y-axis)</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">//Set the gravity of all particles (not necessary down)
+particleSystem.gravity = new BABYLON.Vector3(0, -9.81, 0);
+</textarea></form>
+
+<li><p><strong>Direction</strong> - Random direction of each particle after it has been emitted, between direction1 and
+direction2 vectors.</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+</textarea></form>
+
+</ul>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/particle6.png" alt="emitRate"></p>
+
+<ul>
+<li>
+<p><strong>AngularSpeed</strong> - You can define a rotation for each particle (in radians-per-update-speed). For a little heads-up
+about radians, a complete rotation, in radians, is twice PI... about 6.28 radians.  A single radian is 57.3 degrees. It takes
+6.28 x 57.3 degrees... to make 360 degrees.  Negative numbers can be used as well, for a rotation in the other direction.</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">particleSystem.minAngularSpeed = 0;
+particleSystem.maxAngularSpeed = Math.PI;
+</textarea></form>
+
+<li>
+<p><strong>Strength/Speed</strong> - You can define the power/strength of emitted particles, and the overall motion
+speed. (0.01 is default update speed, faster updates =  faster animation).  This parameter may SEEM to be affected by
+emitRate, but if you think about it for a moment, it is not the same.  EmitRate is HOW MANY per update cycle, where
+emitPower is the speed they will be traveling-at... after they are emitted.  Of course, Babylon.js gives you the abilities
+to set up a minimum and maximum RANGE and the speeds are random between those ranges.  Want a single speed?  Set both settings
+to the same number. Below... we show the random-within-a-range method. (min = 1, max = 3)</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">particleSystem.minEmitPower = 1;
+particleSystem.maxEmitPower = 3;
+</textarea></form>
+
+<li>
+<p><strong>Duration</strong> - You can set the amount of time the particle system is running (depends of the overall speed above).
+In a way, this is a sister command to manualEmitCount, but instead of determining the emitter's run-duration based upon the
+total number of particles (manualEmitCount), we are instead determining run-duration... by TIME.</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.targetStopDuration = 5;
+</textarea></form>
+
+<li>
+<p><strong>Dispose</strong> - Disposes (or not) the particle system upon its stop (very useful if you want to create a one shot
+particle system with a specific targetStopDuration).  This value is boolean... true or false... 1 or 0.</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.disposeOnStop = true;
+</textarea></form>
+
+</ul>
+
+
+<p>Finally, you can start this particle system whenever you want in your code with:</p>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.start();
+</textarea></form>
+
+<p>And, naturally, stop it:</p>
+
+<form><textarea id="raw" rows="2" cols="350">particleSystem.stop();
+</textarea></form>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Lots of fun parameters to experiment-with, yes?  We wouldn't have it any other way.  Your scene is now looking good, and
+real. Don't hesitate to use particles, they are not resource-intensive and your scene will be lot more realistic...
+and fascinating.</p>
+
+<p>Stay with us, because we are going to learn a new very intersting thing:
+<a href="https://github.com/BabylonJS/Babylon.js/wiki/13-Blender">loading your scene from Blender</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/12%20-%20Particles/12%20-%20Particles.zip">HERE</a></p>
+
+<br><hr>
+<!-- 13--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1> 13 Blender Modeler </h1>
+
+<p><strong>Babylon.js</strong> is capable of loading a JSON file through the .babylon file format. Sweet, huh?</p>
+
+<p>In this section, I will show you how to use <strong>Babylon.js</strong> API to load a scene created with Blender.</p>
+
+<p><img alt="image" style="margin-right: auto; margin-left: auto; float: none; display: block;" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender1.png" border="0" height="455" width="644"></p>
+
+<h3>Creating a scene and exporting a .babylon file with Blender</h3>
+
+<p>First of all, please download the exporter script right here:
+<a title="https://github.com/BabylonJS/Babylon.js/tree/master/Exporters/Blender" href="https://github.com/BabylonJS/Babylon.js/tree/master/Exporters/Blender">https://github.com/BabylonJS/Babylon.js/tree/master/Exporters/Blender</a></p>
+<p>To install it in Blender, please follow this small guide:</p>
+
+<ul>
+<li>Unzip the file to your Blender's plugins folder (Should be
+<em>C:\Program Files\Blender Foundation\Blender\2.67\scripts\addons</em> for Blender 2.67 x64).</li>
+
+<li>Launch Blender and go to File/User Préférences/Addon and select Import-Export category. You will be able to
+activate Babylon.js exporter.</li>
+</ul>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender2.png" border="0" height="411" width="644"></p>
+
+<ul>
+<li>Create your scene</li>
+<li>Go to File/Export and select Babylon.js format. Choose a filename and you are done!</li>
+</ul>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender3.png" border="0" height="484" width="450"></p>
+
+<p>Once the exporter is installed, you can unleash your artistic side and create the most beautiful scene your imagination
+can produce. In my case, it will be fairly simple:</p>
+
+<ul>
+<li>A camera</li>
+<li>A point light</li>
+<li>A plane for the ground</li>
+<li>A sphere<br></li>
+</ul>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender4.png" border="0" height="585" width="829"></p>
+
+<p>Just to be a bit less austere, I will add some colors for the ground and the sphere:</p>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender5.png" border="0" height="585" width="829"></p>
+
+<p>I will also add a texture for the sphere. This texture will be used for the diffuse channel of the material:</p>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender6.png" border="0" height="864" width="848"></p>  <p>Please pay attention to:</p>
+
+<ul>
+<li><strong>Use Alpha</strong> checkbox to indicate to Babylon.js to use alpha values from the texture</li>
+<li><strong>Color</strong> checkbox to indicate that this texture must be use for diffuse color <br></li>
+</ul>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender7.png" border="0" height="864" width="848"></p>
+
+<p>Once you are satisfied (You can obviously create a more complex scene), just go to File/Export/Babylon.js to create
+your .babylon file.</p>
+
+<p><img title="image" style="margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" alt="image" src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/blender8.png" border="0" height="558" width="448"></p>
+
+<br>
+<h3>Loading your .babylon into your page/app</h3>
+
+<p>First of all, you should create a simple html web page:</p>
+
+<form><textarea id="raw" rows="25" cols="350">&lt;!DOCTYPE html&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+    &lt;title&gt;Using babylon.js - How to load a scene&lt;/title&gt;
+    &lt;script src="babylon.js"&gt;&lt;/script&gt;
+    &lt;style&gt;
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;canvas id="renderCanvas"&gt;&lt;/canvas&gt;
+ &lt;/body&gt;
+&lt;/html&gt;
+</textarea></form>
+
+<p>This page is pretty simple because all you need is just a canvas and a reference to babylon.js.</p>
+
+<p>Then you will have to use the <em>BABYLON.SceneLoader</em> object to load your scene. To do so, just add this script block
+right after the canvas:</p>
+
+<form><textarea id="raw" rows="22" cols="350">&lt;script&gt;
+    if (BABYLON.Engine.isSupported()) {
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        BABYLON.SceneLoader.Load("", "scene.babylon", engine, function (newScene) {
+            // Wait for textures and shaders to be ready
+            newScene.executeWhenReady(function () {
+                // Attach camera to canvas inputs
+                newScene.activeCamera.attachControl(canvas);
+
+                // Once the scene is loaded, just register a render loop to render it
+                engine.runRenderLoop(function() {
+                    newScene.render();
+                });
+            });
+        }, function (progress) {
+            // To do: give progress feedback to user
+        });
+    }
+&lt;/script&gt;
+</textarea></form>
+
+<p>The <em>Load</em> function takes the following parameters:</p>
+
+<ul>
+  <li>scene folder (can be empty to use the same folder as your page)</li>
+
+  <li>scene file name</li>
+
+  <li>a reference to the engine</li>
+
+  <li>a callback to give you the loaded scene (in my case, I use this callback to attach the camera to the canvas and to
+launch my render loop)</li>
+
+  <li>a callback for progress report<br></li>
+</ul>
+
+<p>Once the scene is loaded, just wait for the textures and shaders to be ready, connect the camera to the canvas and let's go!</p>
+
+<p>Fairly simple, isn't it?</p>
+
+<blockquote>
+  <p>Please note that the textures and the .babylon file must be side by side</p>
+</blockquote>
+
+<p>Another function is also available to interact with .babylon files: <em>BABYLON.SceneLoader.importMesh</em>:</p>
+
+<form><textarea id="raw" rows="2" cols="350">BABYLON.SceneLoader.ImportMesh("spaceship",
+ "Scenes/SpaceDek/", "SpaceDek.babylon", scene, function (newMeshes, 
+particleSystems) {});
+</textarea></form>
+
+<p>This function is intended to import meshes (with their materials and particle systems) from a scene to another. It
+takes the following parameters:</p>
+
+<ul>
+  <li>object name (if you omit this parameter, all the objects are imported)</li>
+
+  <li>scene folder (can be empty to use the same folder as your page)</li>
+
+  <li>scene file name</li>
+
+  <li>a reference to the target scene</li>
+
+  <li>a callback to give you the list of imported meshes and particle systems</li>
+</ul>
+
+<blockquote>
+<p>Beware: You will need to authorize .babylon MIME type on your web server (and furthermore you will also need to
+authorize .babylonmeshdata MIME type if you want to use incremental loading)</p>
+</blockquote>
+
+<h3>Playing with your scene</h3>
+
+<p>The result is as expected: a orange plane lighted by a point light with a floating sphere using an RGBA texture for its
+diffuse color. You can use the mouse and the cursors keys to move:</p>
+
+<p><a href="http://www.babylonjs.com/tutorials/blogs/loadScene/loadscene.html" target="_blank">
+
+<br>
+<span class="dlinks"> Demo loadScene.htm </span></a></p>
+<br>
+
+<p>The full source code is also available:</p>
+
+<p><a href="http://www.babylonjs.com/tutorials/blogs/loadScene/loadScene.zip">http://www.babylonjs.com/tutorials/blogs/loadScene/loadScene.zip</a></p>
+
+<p>Enjoy!</p>
+
+<h1>Other chapters</h1>
+
+<p>If you want to go more deeply into babylon.js, here are some useful links:</p>
+
+<ul>
+  <li>Introducing Babylon.js: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/06/27/babylon-js-a-complete-javascript-framework-for-building-3d-games-with-html-5-and-webgl.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/06/27/babylon-js-a-complete-javascript-framework-for-building-3d-games-with-html-5-and-webgl.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/06/27/babylon-js-a-complete-javascript-framework-for-building-3d-games-with-html-5-and-webgl.aspx</a></li>
+
+  <li>How to load a scene exported from Blender: <a href="http://blogs.msdn.com/b/eternalcoding/archive/2013/06/28/babylon-js-how-to-load-a-babylon-file-produced-with-blender.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/06/28/babylon-js-how-to-load-a-babylon-file-produced-with-blender.aspx</a></li>
+
+  <li>Unleash the StandardMaterial for your babylon.js game: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx</a></li>
+
+  <li>Using lights in your babylon.js game: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/08/babylon-js-using-lights-in-your-babylon-js-game.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/08/babylon-js-using-lights-in-your-babylon-js-game.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/08/babylon-js-using-lights-in-your-babylon-js-game.aspx</a></li>
+
+  <li>Using multi-materials: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx</a></li>
+
+  <li>Creating a convincing world for your game with custom shaders, height maps and skyboxes: <a title="http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx" href="http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/08/06/babylon-js-creating-a-convincing-world-for-your-game-with-custom-shaders-height-maps-and-skyboxes.aspx</a></li>
+</ul>
+
+
+<br><hr>
+<!-- 14--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>14 Advanced Texturing</h1>
+
+<p>You have already seen how you can apply some textures on meshes, but here you are going one step further, with more
+complex textures like mirrors, videos, bump mapping, and multi-texture.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex1.png" alt="AdvancedTexturing"></p>
+
+<p><em>Final result</em></p>
+
+<p>Those new types of textures are considered advanced because we are not used to dealing with them, but you'll see that it is
+very easy to develop them in JavaScript!</p>
+
+<h3>Mirror</h3>
+
+<p>Mirror textures were created to simulate 'mirrors' (!) which means that babylon.js will compute for you the reflection and
+fill the texture with the results. A mirror texture must be set in the <em>reflectionTexture</em> channel of
+a <em>standardMaterial</em> :</p>
+
+<form><textarea id="raw" rows="5" cols="350">var mirrorMaterial = new BABYLON.StandardMaterial("texture4", scene);
+mirrorMaterial.reflectionTexture = new BABYLON.MirrorTexture("mirror", 512, scene, true);
+mirrorMaterial.reflectionTexture.mirrorPlane = new BABYLON.Plane(0, -1.0, 0, -10.0);
+mirrorMaterial.reflectionTexture.renderList = [sphere1, sphere2];
+</textarea></form>
+
+<p>A <em>mirrorTexture</em> is created with a parameter that will specify the size of the rendering buffer (512x512 here,
+better reflection quality if increased). Then you have to define the reflection plane and a render list (the list of
+meshes to render inside the mirror).</p>
+
+<h3>Bump Mapping</h3>
+
+<p>Bump mapping is a technique in computer graphics used to make a rendered surface look more realistic without modifying surface
+geometry. This is only a texture modification, so computation is the same but rendering is much better, have a look:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex2.png" alt="bumpMap"></p>
+
+<p>The bump texture simulates bumps and dents using a map called a normal map.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex3.jpg" alt="normalMap"></p>
+
+<p><em>A normal map</em></p>
+
+<p>And now, let's code this amazing texture with just two lines of JavaScript.  First we create a new standard material, and then,
+simply declare a new bump texture:</p>
+
+<form><textarea id="raw" rows="3" cols="350">var bumpMaterial = new BABYLON.StandardMaterial("texture1", scene);
+bumpMaterial.bumpTexture = new BABYLON.Texture("normalMap.jpg", scene);
+</textarea></form>
+
+<p>That's it, the bump texture disturbs the normal to produce a result like this, where you should recognize our normal map:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex4.png" alt="finalResult"></p>
+
+<h3>Video</h3>
+
+<p>If you want to display a movie in your scene, Babylon engine has a special texture, which works like all the
+other textures. There's a few parameters, including video urls (an url array), the size of the video texture (here it is 256),
+the scene... and the last one is a boolean for using a <a href="http://en.wikipedia.org/wiki/Mipmap">mipmap</a> or not.</p>
+
+<p>Here is a bit of JS from the 'Flat 2009' demo found on the BabylonJS main website. This is the texturing of the flat
+screen TV in the living room.</p>
+
+<form><textarea id="raw" rows="3" cols="350">screen.material.diffuseTexture = new BABYLON.VideoTexture("video",
+["Scenes/Flat2009/babylonjs.mp4", "Scenes/Flat2009/babylonjs.webm"], 256, scene, true);
+</textarea></form>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex5.png" alt="video"></p>
+
+<p>The <em>VideoTexture</em> object accepts an array of videos (taking into account various codecs which the viewee may or may
+not have installed) and once a video is loaded, it uses it as content source. The internal video DOM object is accessible via
+the VideoTexture.video property in order to allow you to control the status of the video (play/pause/stop).</p>
+
+<p>You can also change the loop or autoplay parameter with a boolean variable.</p>
+
+<h3>Multi-materials</h3>
+
+<p>Using a dedicated texture, multi-materials can be assigned to a single mesh. It can be useful if you want your
+mesh to change texturing along its height or depth. You can see a map below with a multi-materials texture...
+(sand, rock, and snow).</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/advtex6.png" alt="multimap"></p>
+
+<p>To learn more about multi-materials, there is a thorough blog post on David Catuhe's blog:
+<a href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/10/babylon-js-using-multi-materials.aspx</a></p>
+
+<p>You can also have a look at this article to learn more about textures:
+<a href="http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx">http://blogs.msdn.com/b/eternalcoding/archive/2013/07/01/babylon-js-unleash-the-standardmaterial-for-your-babylon-js-game.aspx</a></p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Now your scene looks like a professional one. But we can go deeper, by learning how you can replace the default
+background with a wonderful sky, in the next section... about
+<a href="https://github.com/BabylonJS/Babylon.js/wiki/15-Environment">environment</a>.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/14%20-%20Advanced%20Texturing/14%20-%20Advanced%20Texturing.zip">HERE</a></p>
+
+
+<br><hr>
+<!-- 15--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>15 Environment</h1>
+
+<p>As beautiful as your scene is, I'm sure you're not ready to say that your world is finished. In this tutorial, we are
+going to learn how you can create a realistic sky, and apply some fog to give an illusion of depth in your scene.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/enviro1.png" alt="Environment"></p>
+
+<p><em>Final result</em></p>
+
+<h3>Fog</h3>
+
+<p>Using fog has has become easier than ever with babylon.js, so it's very easy to add it to your scene. First, define the fog
+mode like this:</p>
+
+<form><textarea id="raw" rows="2" cols="350">scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+</textarea></form>
+
+<p>Here are the available modes :</p>
+
+<ul>
+<li>
+<em>BABYLON.Scene.FOGMODE</em>NONE_ &gt; default one, fog is deactivated.</li>
+<li>
+<em>BABYLON.Scene.FOGMODE</em>EXP_ &gt; the fog density is following an exponential function.</li>
+<li>
+<em>BABYLON.Scene.FOGMODE</em>EXP2_ &gt; same that above but faster.</li>
+<li>
+<em>BABYLON.Scene.FOGMODE</em>LINEAR_ &gt; the fog density is following a linear function.</li>
+</ul>
+
+<p>If you choose EXP or EXP2 mode, then you can define the density option (default is 0.1):</p>
+
+<form><textarea id="raw" rows="2" cols="350">scene.fogDensity = 0.01;
+</textarea></form>
+
+<p>Otherwise, if you choose LINEAR mode, then you can define where the fog starts and ends:</p>
+
+<form><textarea id="raw" rows="3" cols="350">scene.fogStart = 20.0;
+scene.fogEnd = 60.0;
+</textarea></form>
+
+<p>Finally, whatever the mode, you can specify the color of your fog (default is 'BABYLON.Color3(0.2, 0.2, 0.3)'):</p>
+
+<form><textarea id="raw" rows="2" cols="350">scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.85);
+</textarea></form>
+
+<h3>Skybox</h3>
+<p>To give a perfect illusion of a beautiful sunny sky, we are going to create a simple box, but with a special texture.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/enviro2.png" alt="Skybox"></p>
+
+<p>First, our box, nothing new, just notice the disabled backface culling:</p>
+
+<form><textarea id="raw" rows="5" cols="350">var skybox = BABYLON.Mesh.CreateBox("skyBox", 100.0, scene);
+var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+skyboxMaterial.backFaceCulling = false;
+skybox.material = skyboxMaterial;
+</textarea></form>
+
+<p>Now we must delete all light reflections on our box (the sun doesn't reflect off of the sky!):</p>
+
+<form><textarea id="raw" rows="3" cols="350">skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+</textarea></form>
+
+<p>And finally, we apply our special sky texture to it. This texture has been specially prepared to be a skybox, in a dedicated
+directory, named 'skybox' in our example:</p>
+
+<form><textarea id="raw" rows="3" cols="350">skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("skybox/skybox", scene);
+skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+</textarea></form>
+
+<p>In this skybox directory, we must put 6 sky textures, covering every face of our box. Each image must be named by the
+corresponding face: 'skybox_nx.png', 'skybox_ny.png', 'skybox_nz.png', 'skybox_px.png', 'skybox_py.png', 'skybox_pz.png'.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/enviro3.png" alt="Skybox"></p>
+
+<p>If you want some free samples, you can find some at:
+<a href="http://www.3delyvisions.com/skf1.htm">http://www.3delyvisions.com/skf1.htm</a> (look at licenses before use).</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>You should have a beautiful scene now, but other than your 3D models, your world is pretty flat. That's a shame for
+your scene. So, in the next section, we are going to transform your flat ground into some beautiful mountains.</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/15%20-%20Environment/15%20-%20Environment.zip">HERE</a></p>
+
+<br><hr>
+<!-- 16--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>16 Height Map</h1>
+
+<p>Our goal here... is to understand height maps, and to learn how to generate realistic ground/terrain.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap1.jpg" alt="HeightMap"></p>
+
+<p><em>Final result</em></p>
+
+<h3>Introduction</h3>
+
+<p>Those mountains are very easy to generate with BabylonJS, with only one function. But before we do that, we need to create a
+new material, like others we have done:</p>
+
+<form><textarea id="raw" rows="6" cols="350">var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+groundMaterial.diffuseTexture = new BABYLON.Texture("Earth__land.jpg", scene);
+
+var groundPlane = BABYLON.Mesh.CreatePlane("groundPlane", 200.0, scene);
+groundPlane.material = groundMaterial;
+</textarea></form>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap2.jpg" alt="HeightMap2"></p>
+
+<p><em>This flat material shown applied to a plane</em></p>
+
+<h3>Explanations of a height map</h3>
+
+<p>Understanding height maps is the main objective in this section. A height map is simply a greyscale image like the one
+we are going to use:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap3.jpg" alt="HeightMap3"></p>
+
+<p>This image will now be used to generate our ground, using the different variants of gray of our picture. This image is
+like the elevation's data for your ground. Each pixel's color is interpreted as a distance of displacement or 'height' from
+the 'floor' of your mesh. So the whiter the pixel is, the steeper your mountain is.</p>
+
+<p>To help you in generating those height maps, you can use software like 'Terragen', or 'Picogen'.</p>
+
+<h3>Javascript code</h3>
+
+<p>Now let's see this powerful function named 'CreateGroundFromHeightMap':</p>
+
+<form><textarea id="raw" rows="3" cols="350">var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground",
+	"worldHeightMap.jpg", 200, 200, 250, 0, 10, scene, false);
+</textarea></form>
+
+<p>Many parameters here:</p>
+
+<ul>
+<li><em>Name</em></li>
+<li><em>Height map picture url</em></li>
+<li>Size of this mesh: </li>
+<li>&gt; <em>Width</em>
+</li>
+<li>&gt; <em>Height</em>
+</li>
+<li>
+<em>Number of subdivisions</em>: increase the complexity of this mesh in order to improve the visual quality of it:</li>
+</ul>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap4.png" alt="HeightMap4"></p>
+
+<ul>
+<li>
+<em>Minimum height</em> : The lowest level of the mesh</li>
+<li>
+<em>Maximum height</em> : the highest level of the mesh</li>
+<li>
+<em>Scene</em>: the actual scene</li>
+<li>
+<em>Updatable</em>: say if this mesh can be updated dynamically in the future (Boolean)</li>
+</ul>
+
+<p>Finally, when our new mesh is ready, we only have to apply our material:</p>
+
+<form><textarea id="raw" rows="2" cols="350">ground.material = groundMaterial;
+</textarea></form>
+
+<p>And we have a beautiful 3D view of the earth!</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap5.png" alt="HeightMap4"></p>
+
+<p>In my example, I have only added one skybox (like the one we built previously), and a spotlight to simulate sun activity.</p>
+
+<p>Here is one another example that you can achieve in BabylonJS with height maps:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/hmap6.jpg" alt="HeightMap5"></p>
+
+<h3>Tips</h3>
+
+<p>When the user is manipulating the camera, it can be awkward if he can see under the ground, or if he zooms-out
+outside the skybox. So to avoid that kind of situation, we can constrain the camera movement:</p>
+
+<form><textarea id="raw" rows="17" cols="350">var camerasBorderFunction = function () {
+	// Angle
+	if (camera.beta &lt; 0.1)
+		camera.beta = 0.1;
+	else if (camera.beta &gt; (Math.PI / 2) * 0.9)
+		camera.beta = (Math.PI / 2) * 0.9;
+
+	// Zoom
+	if (camera.radius &gt; 150)
+		camera.radius = 150;
+
+	if (camera.radius &lt; 30)
+		camera.radius = 30;
+};
+
+scene.registerBeforeRender(camerasBorderFunction);
+</textarea></form>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Well done! Your scene looks good now, and you can imagine a lot of new landscapes! One more important thing you need
+to know is <a href="https://github.com/BabylonJS/Babylon.js/wiki/17-Shadows">how to create shadows</a>. Shadows will
+give to your scene a beautiful rendering effect.  Don't forget it!</p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/16%20-%20Height%20map/16%20-%20Height%20map.zip">HERE</a></p>
+
+
+<br><hr>
+<!-- 17--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>17 Shadows</h1>
+
+<p>In this section, we are going to learn how to manage shadows in Babylon JS. Shadows are now becoming dynamics, and
+they are now generated depending upon the light(s).</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/shad1.jpg" alt="Shadows"></p>
+
+<p><em>Final result</em></p>
+
+<p>Shadows are easy to generate using the a nice function of Babylon JS: 'ShadowGenerator'. This function uses a Shadow map:
+map of your scene generated from the light's point of view, as you can see here:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/shad2.png" alt="Shadows2"></p>
+
+<p>The two parameters of this 'shadows generator' are the size of this map, and the light used for shadow map's computation.</p>
+
+<form><textarea id="raw" rows="2" cols="350">var shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
+</textarea></form>
+
+<p>Now, you have to define which shadows will be rendered. Here we want the shadow of our torus, but you can 'push'
+any mesh that you want:</p>
+
+<form><textarea id="raw" rows="2" cols="350">shadowGenerator.getShadowMap().renderList.push(torus);
+</textarea></form>
+
+<p>And finally, you will have to define where the shadows will be displayed... by setting a mesh parameter to TRUE:</p>
+
+<form><textarea id="raw" rows="2" cols="350">ground.receiveShadows = true;
+</textarea></form>
+
+<p><strong>Options</strong></p>
+
+<p>If you want to go further, you can choose if you want to use the 'varianceShadowMap' parameter:</p>
+
+<form><textarea id="raw" rows="2" cols="350">shadowGenerator.useVarianceShadowMap = false;
+</textarea></form>
+
+<p>It is <em>true</em> by default, because it is handy to use it to decrease the aliasing of the shadow, but if you
+want to reduce computation time, feel free to change it.</p>
+
+<p>Keep in mind that this shadow generator can only be used with one light. If you want to generate more than one shadow,
+then you need to create more than one shadow generator.</p>
+
+<h2><a name="next-step" class="anchor" href="#next-step"><span class="octicon octicon-link"></span></a>Next step</h2>
+
+<p>Now that you have become a real professional at building with Babylon, maybe it's time to go deeper into the
+code... to manipulate complex shaders, mesh, or texture. You can also participate in this project by visiting our
+Github page: <a href="https://github.com/BabylonJS/Babylon.js">https://github.com/BabylonJS/Babylon.js</a></p>
+
+<p>Download source code <a href="http://www.babylonjs.com/tutorials/17%20-%20Shadows/17%20-%20Shadows.zip">HERE</a></p>
+
+<br><hr>
+<!-- 18--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>18 Rotations and Translations</h1>
+
+<p>Babylon.js provides many way to locate and rotate your meshs.</p>
+
+<p>The basic way to define the position of a mesh is as follows:</p>
+
+<form><textarea id="raw" rows="2" cols="350">mesh.position = new BABYLON.Vector3(x, y, z);
+</textarea></form>
+
+<p>The translation is applied <strong>AFTER</strong> the rotation which can be set with euler angles or quaternions:</p>
+
+<form><textarea id="raw" rows="3" cols="350">mesh.rotation = new BABYLON.Vector3(x, y, z); // Euler
+mesh.rotationQuaternion = new BABYLON.Quaternion(x, y, z, w); // Quaternion
+</textarea></form>
+
+<p>The rotation is computed on the object local space. <code>rotation</code> will be used
+if <code>rotationQuaternion</code> property is null (This is the default behavior). <code>rotationQuaternion</code> is
+used if both are set.</p>
+
+<p>If you want to apply a translation of the local space you have to use the following code:</p>
+
+<form><textarea id="raw" rows="2" cols="350">mesh.setLocalTranslation(new BABYLON.Vector3(x, y, z));
+</textarea></form>
+
+<p>You can also get the current position of the object but in local space and not in world space with the following code:</p>
+
+<form><textarea id="raw" rows="2" cols="350">var localPosition = mesh.getLocalTranslation();
+</textarea></form>
+
+<p>Finally if you want to apply a global rotation (meaning around global axis and not local axis), you can use this code:</p>
+
+<form><textarea id="raw" rows="3" cols="350">var rotationToApply = BABYLON.Quaternion.RotationYawPitchRoll(y, x, z);
+mesh.rotationQuaternion = rotationToApply.multiply(mesh.rotationQuaternion);
+</textarea></form>
+
+
+<br><hr>
+<!-- 19--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>19 Bones and Skeletons</h1>
+
+<p>Babylon.js supports bones animations for your meshes.</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/bones1.jpg" alt="Bones"></p>
+
+<p>Basically a skeleton (<code>BABYLON.Skeleton</code>) contains a hierarchy of bones (<code>BABYLON.Bone</code>). A
+bone is defined by a name, a parent (can be null) and a transformation matrix.</p>
+
+<p>Here are the constructors:</p>
+
+<form><textarea id="raw" rows="3" cols="350">BABYLON.Skeleton = function (name, id, scene)
+BABYLON.Bone = function (name, skeleton, parentBone, matrix)
+</textarea></form>
+
+<p>Inside a skeleton, bones can be found into the <code>skeleton.bones</code> array.</p>
+
+<p>A bone can contains <a href="https://github.com/BabylonJS/Babylon.js/wiki/07-Animation">animations</a> to animate
+its <code>matrix</code> property.</p>
+
+<h3>Preparing mesh</h3>
+
+<p>A skeleton can be applied to a mesh through the <code>mesh.skeleton</code> property.</p>
+
+<p>You must note that babylon.js supports up to <strong>4 bones influences per vertex</strong>.</p>
+
+<p>The mesh must also have additional vertices data:</p>
+
+<ul>
+<li><em>Matrices weights</em>: 4 floats to weight bones matrices
+(<code>mesh.setVerticesData(matricesWeights, BABYLON.VertexBuffer.MatricesWeightsKind, false)</code>)</li>
+
+<li><em>Matrices indices</em>: 4 floats to index bones matrices
+(<code>mesh.setVerticesData(floatIndices, BABYLON.VertexBuffer.MatricesIndicesKind, false)</code>)</li>
+</ul>
+
+<p>The final matrix applied to each vertex is computed as follow:</p>
+
+<form><textarea id="raw" rows="3" cols="350">finalMatrix = worldMatrix * (bonesMatrices[index0] * weight0 + bonesMatrices[index1] * weight1 +
+	bonesMatrices[index2] * weight2 + bonesMatrices[index3] * weight3)
+</textarea></form>
+
+<p>On low-end hardware, the maximum bones influences per vertex is reduced to 3.</p>
+
+<h3>Loading bones</h3>
+
+<p>Skeletons and bones can be loaded from .babylon files (FBX and Blender exporter support bones generation).</p>
+
+<p>Here is a sample of how to load a boned mesh and how to launch skeleton animation:</p>
+
+<form><textarea id="raw" rows="10" cols="350">BABYLON.SceneLoader.ImportMesh("him", "Scenes/Dude/", "Dude.babylon", scene, function (newMeshes, particleSystems, skeletons) {
+    var dude = newMeshes[0];
+
+    dude.rotation.y = Math.PI;
+    dude.position = new BABYLON.Vector3(0, 0, -80);
+
+    scene.beginAnimation(skeletons[0], 0, 100, true, 1.0);
+});
+</textarea></form>
+
+<p>A complete working example can be found <a href="http://www.babylonjs.com/index.html?BONES">here</a></p>
+
+<h3>Cloning bones</h3>
+
+<p>Bones and skeletons can be cloned (This is the case of the rabbits in the previous link).</p>
+
+<p>Here is a sample of how to load and clone a mesh and its skeleton:</p>
+
+<form><textarea id="raw" rows="21" cols="350">BABYLON.SceneLoader.ImportMesh("Rabbit",
+ "Scenes/Rabbit/", "Rabbit.babylon", scene, function (newMeshes, 
+particleSystems, skeletons) {
+        var rabbit = newMeshes[1];
+
+        rabbit.scaling = new BABYLON.Vector3(0.4, 0.4, 0.4);
+        shadowGenerator.getShadowMap().renderList.push(rabbit);
+
+        var rabbit2 = rabbit.clone("rabbit2");
+        var rabbit3 = rabbit.clone("rabbit2");
+
+        rabbit2.position = new BABYLON.Vector3(-50, 0, -20);
+        rabbit2.skeleton = rabbit.skeleton.clone("clonedSkeleton");
+
+        rabbit3.position = new BABYLON.Vector3(50, 0, -20);
+        rabbit3.skeleton = rabbit.skeleton.clone("clonedSkeleton2");
+
+        scene.beginAnimation(skeletons[0], 0, 100, true, 0.8);
+        scene.beginAnimation(rabbit2.skeleton, 73, 100, true, 0.8);
+        scene.beginAnimation(rabbit3.skeleton, 0, 72, true, 0.8);
+    });
+</textarea></form>
+
+<br><hr>
+<!-- 20--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>20 Postprocesses</h1>
+
+<p>Postprocesses allow you to create 2D effects on top of your scene. A postprocess is linked to a camera and can
+be part of a chain of postprocesses where each postprocess use the result of the previous one as input for its
+own processing.</p>
+
+<h3>Base postprocess</h3>
+
+<p>Every postprocess is based upon <code>BABYLON.PostProcess</code> which constructor is:</p>
+
+<form><textarea id="raw" rows="2" cols="350">BABYLON.PostProcess = function (name, fragmentUrl, parameters, samplers, ratio, camera, samplingMode)
+</textarea></form>
+
+<p>We will get back to <em>fragmentUrl</em>, _parameters _and _samplers _parameters.</p>
+
+<p>The ratio is used to define the size of the postprocess (0.5 means that your postprocess will have a
+width = canvas.width * 0.5 and a height = canvas.height * 0.5).</p>
+
+<p>The camera is the camera where you want to attach your postprocess.</p>
+
+<p>The samplingMode can be one of the following:</p>
+
+<ul>
+<li>BABYLON.Texture.NEAREST_SAMPLINGMODE</li>
+<li>BABYLON.Texture.BILINEAR_SAMPLINGMODE</li>
+<li>BABYLON.Texture.TRILINEAR_SAMPLINGMODE</li>
+</ul>
+
+<h3>Builtin postprocesses</h3>
+
+<p>Babylon.js comes with a set of ready to use postprocesses.</p>
+
+<!-- ------------------- -->
+<ul>
+<li><p>Pass: Do nothing. Used to copy the framebuffer into a postprocess for further use</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">var postProcess = new BABYLON.PassPostProcess("Scene copy", 1.0, camera);
+</textarea></form>
+
+<li><p>Black and white: apply a black and white effect:</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">var postProcess = new BABYLON.BlackAndWhitePostProcess("bandw", 1.0, scene.activeCamera);
+</textarea></form>
+
+<li><p>Blur: apply a directional blur:</p></li>
+
+<form><textarea id="raw" rows="3" cols="350">var postProcess = new BABYLON.BlurPostProcess("Horizontal blur", new BABYLON.Vector2(1.0, 0), blurWidth, 0.25, camera);
+</textarea></form>
+
+<li><p>Convolution: apply a kernel matrix to every pixel:</p></li>
+
+<form><textarea id="raw" rows="8" cols="350">var sepiaKernelMatrix = BABYLON.Matrix.FromValues(
+                    0.393, 0.349, 0.272, 0,
+                    0.769, 0.686, 0.534, 0,
+                    0.189, 0.168, 0.131, 0,
+                    0, 0, 0, 0
+                );
+var postProcess = new BABYLON.ConvolutionPostProcess("Sepia", sepiaKernelMatrix, 1.0, camera);
+</textarea></form>
+
+<li><p>FXAA: apply a full screen antialiasing filter:</p></li>
+
+<form><textarea id="raw" rows="2" cols="350">var postProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
+</textarea></form>
+
+<li><p>Refraction: apply a refraction texture:</p></li>
+
+</ul>
+<!-- ------------------- -->
+
+<form><textarea id="raw" rows="3" cols="350">var postProcess = new 
+BABYLON.RefractionPostProcess("Refraction", "refMap.jpg", new 
+BABYLON.Color3(1.0, 1.0, 1.0), 0.5, 0.5, 1.0, camera);
+</textarea></form>
+
+<p>The constructor of this postprocess is the following:</p>
+
+<form><textarea id="raw" rows="3" cols="350">BABYLON.RefractionPostProcess = function (name, refractionTextureUrl, color, depth, colorLevel, ratio, camera, samplingMode)
+</textarea></form>
+
+<ul>
+<li><em>refractionTextureUrl</em> is the URL of the refraction map. The luminance of every pixel is used to define the
+refraction level (white = min, black = max)</li>
+<li><em>color</em> is the base color of the refraction (used to taint the rendering)</li>
+<li><em>depth</em> is the simulated refraction depth</li>
+<li><em>colorLevel</em> is the coefficient of the base color (0 to remove base color tainting)</li>
+</ul>
+
+<h3>Custom postprocesses</h3>
+
+<p>You can also develop your own postprocess using <code><strong>BABYLON.PostProcess</strong></code> object.</p>
+
+<p>To do so you need to create a .fragment.fx file where you will code the GLSL shader used for every pixel of the screen:</p>
+
+<form><textarea id="raw" rows="30" cols="350">#ifdef GL_ES
+precision mediump float;
+#endif
+
+// Samplers
+varying vec2 vUV;
+uniform sampler2D textureSampler;
+
+// Parameters
+uniform vec2 screenSize;
+uniform float highlightThreshold;
+
+float highlights(vec3 color)
+{
+	return smoothstep(highlightThreshold, 1.0, dot(color, vec3(0.3, 0.59, 0.11)));
+}
+
+void main(void)
+{
+	vec2 texelSize = vec2(1.0 / screenSize.x, 1.0 / screenSize.y);
+	vec4 baseColor = texture2D(textureSampler, vUV + vec2(-1.0, -1.0) * texelSize) * 0.25;
+	baseColor += texture2D(textureSampler, vUV + vec2(1.0, -1.0) * texelSize) * 0.25;
+	baseColor += texture2D(textureSampler, vUV + vec2(1.0, 1.0) * texelSize) * 0.25;
+	baseColor += texture2D(textureSampler, vUV + vec2(-1.0, 1.0) * texelSize) * 0.25;
+
+	baseColor.a = highlights(baseColor.rgb);
+
+	gl_FragColor = baseColor;
+}
+</textarea></form>
+
+<p>Your shader must define the following values:</p>
+
+<ul>
+<li>Precision must be set to mediump</li>
+<li>A varying vUV must be used to read texture coordinates</li>
+<li>The first sampler must be named textureSampler</li>
+</ul>
+
+<p>Once you created your sampler, you can create a postprocess:</p>
+
+<form><textarea id="raw" rows="3" cols="350">var postProcess = new 
+BABYLON.PostProcess("Down sample", 
+"./Scenes/Customs/postprocesses/downsample", ["screenSize", 
+"highlightThreshold"], null, 0.25, camera, 
+BABYLON.Texture.BILINEAR_SAMPLINGMODE);
+</textarea></form>
+
+<p>You have to specify:</p>
+
+<ul>
+<li>A name</li>
+<li>The URL of the shader coder</li>
+<li>A list of your uniforms parameters</li>
+<li>A list of additionnal samplers</li>
+<li>The ratio</li>
+<li>The parent camera</li>
+<li>The sampling mode</li>
+</ul>
+
+<p>You can set up things before the postprocess is applied by specifying an onApply function:</p>
+
+<form><textarea id="raw" rows="5" cols="350">postProcess.onApply = function (effect) {
+    effect.setFloat2("screenSize", postProcess1.width, postProcess1.height);
+    effect.setFloat("highlightThreshold", 0.90);
+};
+</textarea></form>
+
+<p>Please note that you can also used the output of a previous postprocess as source for one of your own sampler:</p>
+
+<form><textarea id="raw" rows="2" cols="350">effect.setTextureFromPostProcess("sceneSampler", postProcess0);
+</textarea></form>
+
+<h3>Chaining postprocesses</h3>
+
+<p>You can chain postprocesses on a specific camera. They are processed using the creation order. For instance
+here is the code used to simulate a bloom effect:</p>
+
+<form><textarea id="raw" rows="20" cols="350">var blurWidth = 1.0;
+
+var postProcess0 = new BABYLON.PassPostProcess("Scene copy", 1.0, 
+camera);
+var postProcess1 = new BABYLON.PostProcess("Down sample", 
+"./Scenes/Customs/postprocesses/downsample", ["screenSize", 
+"highlightThreshold"], null, 0.25, camera, 
+BABYLON.Texture.BILINEAR_SAMPLINGMODE);
+postProcess1.onApply = function (effect) {
+    effect.setFloat2("screenSize", postProcess1.width, 
+postProcess1.height);
+    effect.setFloat("highlightThreshold", 0.90);
+};
+var postProcess2 = new BABYLON.BlurPostProcess("Horizontal blur", new 
+BABYLON.Vector2(1.0, 0), blurWidth, 0.25, camera);
+var postProcess3 = new BABYLON.BlurPostProcess("Vertical blur", new 
+BABYLON.Vector2(0, 1.0), blurWidth, 0.25, camera);
+var postProcess4 = new BABYLON.PostProcess("Final compose", 
+"./Scenes/Customs/postprocesses/compose", ["sceneIntensity", 
+"glowIntensity", "highlightIntensity"], ["sceneSampler"], 1, camera);
+postProcess4.onApply = function (effect) {
+    effect.setTextureFromPostProcess("sceneSampler", postProcess0);
+    effect.setFloat("sceneIntensity", 0.5);
+    effect.setFloat("glowIntensity", 0.4);
+    effect.setFloat("highlightIntensity", 1.0);
+};
+</textarea></form>
+
+<br><hr>
+
+<!-- 21--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>21 Merge Meshes</h1>
+
+<p>If you want to merge meshes into a new one, you can use the following code:</p>
+
+<form><textarea id="raw" rows="100" cols="350">var mergeMeshes = 
+function (meshName, arrayObj, scene) {
+    var arrayPos = [];
+    var arrayNormal = [];
+    var arrayUv = [];
+    var arrayUv2 = [];
+    var arrayColor = [];
+    var arrayMatricesIndices = [];
+    var arrayMatricesWeights = [];
+    var arrayIndice = [];
+    var savedPosition = [];
+    var savedNormal = [];
+    var newMesh = new BABYLON.Mesh(meshName, scene);
+    var UVKind = true;
+    var UV2Kind = true;
+    var ColorKind = true;
+    var MatricesIndicesKind = true;
+    var MatricesWeightsKind = true;
+
+    for (i = 0; i != arrayObj.length ; i++) {
+        if 
+(!arrayObj[i].mesh.isVerticesDataPresent([BABYLON.VertexBuffer.UVKind]))
+            UVKind = false;
+        if 
+(!arrayObj[i].mesh.isVerticesDataPresent([BABYLON.VertexBuffer.UV2Kind]))
+
+            UV2Kind = false;
+        if 
+(!arrayObj[i].mesh.isVerticesDataPresent([BABYLON.VertexBuffer.ColorKind]))
+
+            ColorKind = false;
+        if 
+(!arrayObj[i].mesh.isVerticesDataPresent([BABYLON.VertexBuffer.MatricesIndicesKind]))
+
+            MatricesIndicesKind = false;
+        if 
+(!arrayObj[i].mesh.isVerticesDataPresent([BABYLON.VertexBuffer.MatricesWeightsKind]))
+
+            MatricesWeightsKind = false;
+    }
+
+    for (i = 0; i != arrayObj.length ; i++) {
+        var ite = 0;
+        var iter = 0;
+        arrayPos[i] = 
+arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        arrayNormal[i] = 
+arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
+        if (UVKind)
+            arrayUv = 
+arrayUv.concat(arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.UVKind));
+
+        if (UV2Kind)
+            arrayUv2 = 
+arrayUv2.concat(arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.UV2Kind));
+
+        if (ColorKind)
+            arrayColor = 
+arrayColor.concat(arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.ColorKind));
+
+        if (MatricesIndicesKind)
+            arrayMatricesIndices = 
+arrayMatricesIndices.concat(arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.MatricesIndicesKind));
+
+        if (MatricesWeightsKind)
+            arrayMatricesWeights = 
+arrayMatricesWeights.concat(arrayObj[i].mesh.getVerticesData(BABYLON.VertexBuffer.MatricesWeightsKind));
+
+
+        var maxValue = savedPosition.length / 3;
+        var worldMatrix = arrayObj[i].mesh.getWorldMatrix();
+
+        while (ite &lt; arrayPos[i].length) {
+            var vertex = new BABYLON.Vector3.TransformCoordinates(new 
+BABYLON.Vector3(arrayPos[i][ite], arrayPos[i][ite + 1], arrayPos[i][ite +
+ 2]), worldMatrix);
+            savedPosition.push(vertex.x);
+            savedPosition.push(vertex.y);
+            savedPosition.push(vertex.z);
+            ite = ite + 3;
+        }
+        while (iter &lt; arrayNormal[i].length) {
+            var vertex = new BABYLON.Vector3.TransformNormal(new 
+BABYLON.Vector3(arrayNormal[i][iter], arrayNormal[i][iter + 1], 
+arrayNormal[i][iter + 2]), worldMatrix);
+            savedNormal.push(vertex.x);
+            savedNormal.push(vertex.y);
+            savedNormal.push(vertex.z);
+            iter = iter + 3;
+        }
+        if (i &gt; 0) {
+            var tmp = arrayObj[i].mesh.getIndices();
+            for (it = 0 ; it != tmp.length; it++) {
+                tmp[it] = tmp[it] + maxValue;
+            }
+            arrayIndice = arrayIndice.concat(tmp);
+        }
+        else {
+            arrayIndice = arrayObj[i].mesh.getIndices();
+        }
+
+        arrayObj[i].mesh.dispose(false);
+    }
+
+    newMesh.setVerticesData(savedPosition, 
+BABYLON.VertexBuffer.PositionKind, false);
+    newMesh.setVerticesData(savedNormal, 
+BABYLON.VertexBuffer.NormalKind, false);
+    if (arrayUv.length &gt; 0)
+        newMesh.setVerticesData(arrayUv, BABYLON.VertexBuffer.UVKind, 
+false);
+    if (arrayUv2.length &gt; 0)
+        newMesh.setVerticesData(arrayUv, BABYLON.VertexBuffer.UV2Kind, 
+false);
+    if (arrayColor.length &gt; 0)
+        newMesh.setVerticesData(arrayUv, BABYLON.VertexBuffer.ColorKind,
+ false);
+    if (arrayMatricesIndices.length &gt; 0)
+        newMesh.setVerticesData(arrayUv, 
+BABYLON.VertexBuffer.MatricesIndicesKind, false);
+    if (arrayMatricesWeights.length &gt; 0)
+        newMesh.setVerticesData(arrayUv, 
+BABYLON.VertexBuffer.MatricesWeightsKind, false);
+
+    newMesh.setIndices(arrayIndice);
+    return newMesh;
+};
+</textarea></form>
+
+<p>May your horse be with you! :)</p>
+
+
+<br><hr>
+<!-- 22--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>22 Multi-Views</h1>
+
+<p>Babylon.js is able to render multi-views of the same scene.</p>
+
+<p>Basically, a scene has a <code><strong>scene.activeCamera</strong></code> property to define the point of view.
+But you can also define many active cameras with the following code:</p>
+
+<form><textarea id="raw" rows="3" cols="350">scene.activeCameras.push(camera);
+scene.activeCameras.push(camera2);
+</textarea></form>
+
+<h3>Viewports</h3>
+
+<p>If you want to use many cameras, you will need to specify a viewport for each camera:</p>
+
+<form><textarea id="raw" rows="3" cols="350">camera.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 1.0);
+camera2.viewport = new BABYLON.Viewport(0, 0, 0.5, 1.0);
+</textarea></form>
+
+<p>A viewport is defined by the following constructor:</p>
+
+<form><textarea id="raw" rows="2" cols="350">BABYLON.Viewport = function (x, y, width, height)
+</textarea></form>
+
+<p>x, y, width, height are all absolute values (between 0 and 1)</p>
+
+<br><hr>
+
+<!-- 23--------------------------------------------------------------------------------------------------------------------- -->
+
+<h1>23 Lens Flares</h1>
+
+<p>Babylon.js allows you to simply create lens flares effect:</p>
+
+<p><img src="Master%20Bablyon.js_BabylonJS%20Combined%20Tutorial_files/lens_flare1.jpg" alt="Lens flares"></p>
+
+<p>To do so, you have to first create a LensFlareSystem:</p>
+
+<form><textarea id="raw" rows="2" cols="350">var lensFlareSystem = new BABYLON.LensFlareSystem("lensFlareSystem", light0, scene);
+</textarea></form>
+
+<p>The second parameter defines the source (the emitter) of the lens flares (it can be a camera, a light or a mesh).</p>
+
+<p>Then, you can add flares to your system with the following code:</p>
+
+<form><textarea id="raw" rows="7" cols="350">var flare00 = new BABYLON.LensFlare(0.2, 0, new BABYLON.Color3(1, 1, 1), "Assets/lens5.png", lensFlareSystem);
+var flare01 = new BABYLON.LensFlare(0.5, 0.2, new BABYLON.Color3(0.5, 0.5, 1), "Assets/lens4.png", lensFlareSystem);
+var flare02 = new BABYLON.LensFlare(0.2, 1.0, new BABYLON.Color3(1, 1, 1), "Assets/lens4.png", lensFlareSystem);
+var flare03 = new BABYLON.LensFlare(0.4, 0.4, new BABYLON.Color3(1, 0.5, 1), "Assets/Flare.png", lensFlareSystem);
+var flare04 = new BABYLON.LensFlare(0.1, 0.6, new BABYLON.Color3(1, 1, 1), "Assets/lens5.png", lensFlareSystem);
+var flare05 = new BABYLON.LensFlare(0.3, 0.8, new BABYLON.Color3(1, 1, 1), "Assets/lens4.png", lensFlareSystem);
+</textarea></form>
+
+<p>To create a flare, you must specify the following parameters:</p>
+
+<ul>
+<li>Size (a floating value between 0 and 1)</li>
+<li>Position (a floating value between -1 and 1). A value of 0 is located on the emitter. A value greater than 0 is
+beyond the emitter and a value lesser than 0 is behind the emitter</li>
+<li>Color</li>
+<li>Texture</li>
+</ul>
+
+<p>Babylon.js can also detect occlusions for you. A mesh can occlude the lens flares if the following conditions are met:</p>
+
+<ul>
+<li>has a material</li>
+<li>isVisible === true</li>
+<li>isEnabled() === true</li>
+<li>checkCollisions === true</li>
+</ul>
+
+<br><hr>
+<!-- ----------------------------------------------------------------------------------------------------------------------- -->
+
+
+</ul></body></html>

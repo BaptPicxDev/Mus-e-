@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><title></title><meta charset="utf-8"><link rel="stylesheet" href="plane_files/font-awesome.css"><link rel="stylesheet" href="plane_files/flexboxgrid.css" type="text/css"><link href="plane_files/css_003.css" rel="stylesheet" type="text/css"><link href="plane_files/css.css" rel="stylesheet" type="text/css"><link href="plane_files/css_002.css" rel="stylesheet" type="text/css"><link rel="stylesheet" href="plane_files/main.css"><link rel="stylesheet" href="plane_files/zenburn.css"><script src="plane_files/piwik.js" defer="defer" async="" type="text/javascript"></script><script src="plane_files/highlight.js"></script><script>hljs.initHighlightingOnLoad();
+</script></head><body><div class="wrapper"><!--Menu--><div class="menu"><div class="menu-content"><div class="name">Julian</div><div class="name">"Temechon"</div><div class="items"><div class="item"><a href="http://www.pixelcodr.com/projects.html"><i class="fa fa-gamepad"></i>Projects</a></div><div class="item"><a href="http://www.pixelcodr.com/tutorials.html"><i class="fa fa-graduation-cap"></i>Babylon.js tutorials</a></div><div class="item"><a href="https://github.com/Temechon" target="_new"><i class="fa fa-github"></i>Github</a></div><div class="item"><a href="http://www.pixelcodr.com/aboutme.html"><i class="fa fa-user"></i>About me</a></div><div class="item"><a href="http://learningbabylonjs.com/" target="_new"><i class="fa fa-rocket"></i>Learning Babylon.js</a></div></div></div></div><!-- Content--><div class="right-space"><div class="content"><h1>Action Managers</h1><div class="tutorial">
+    <h2>Plane - How to use Actions and ActionManager </h2>
+
+    <div style="text-align:center; padding-top:40px; padding-bottom: 40px">
+        <img src="plane_files/babylonjs.png" style="max-height:75px;">
+        <img src="plane_files/html5.png" style="max-height:75px;"><br>
+    </div>
+    <p>
+
+    </p>
+    <p>
+        To understand this tutorial, you should have some experience with Babylon.js or completed my
+        <a href="http://www.pixelcodr.com/tutos/toad_attack/toad_attack.html">first tutorial</a>.
+    </p>
+
+    <h2>Objective</h2>
+    <p>
+        In this tutorial, we will try to use a notion created recently (last stable version 1.12) : Actions !<br>
+        Actions are a simple way to interact with your scene, and are launched by a trigger. With this new system,
+        we will try to create a simple game prototype called
+        <a href="http://www.pixelcodr.com/tutos/plane/game/index.html">PLANE - click here to run the game</a>. <br>
+        Let's start !
+    </p>
+
+    <h2>What you will create</h2>
+
+    <div class=" centerImg centerImgBig">
+        <a href="http://www.pixelcodr.com/tutos/plane/game/index.html"><img src="plane_files/final.png"></a>
+    </div>
+
+    <p>
+        Plane is a game prototype with the following features :
+        </p><ul>
+            <li>You control a ship (well... a box, but try to picture it, ok ?), and two movements are available : left and right.</li>
+            <li>The ship is always going forward</li>
+            <li>Buildings are randomly created in front of the ship</li>
+            <li>If the ship collides with one building, the game is over</li>
+            <li>The player can click on one building to destroy it, but it consumes one bullet</li>
+        </ul>
+
+    Ready ? Let's start :)
+    <p></p>
+
+    <h2>Preparing the scene</h2>
+    As usual, the <code>onload</code> function is launched when the DOM is fully loaded.
+    <pre><code class="js hljs javascript">
+<span class="hljs-comment">// The babylon engine</span>
+<span class="hljs-keyword">var</span> engine;
+<span class="hljs-comment">// The current scene</span>
+<span class="hljs-keyword">var</span> scene;
+<span class="hljs-comment">// The HTML canvas</span>
+<span class="hljs-keyword">var</span> canvas;
+<span class="hljs-comment">// The camera, the ship and the ground will move</span>
+<span class="hljs-keyword">var</span> camera, ship, ground;
+
+<span class="hljs-comment">// The function onload is loaded when the DOM has been loaded</span>
+    <span class="hljs-built_in">document</span>.addEventListener(<span class="hljs-string">"DOMContentLoaded"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    onload();
+}, <span class="hljs-literal">false</span>);
+
+<span class="hljs-comment">/**
+* Onload function : creates the babylon engine and the scene
+*/</span>
+<span class="hljs-keyword">var</span> onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// Engine creation</span>
+    canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"renderCanvas"</span>);
+    engine = <span class="hljs-keyword">new</span> BABYLON.Engine(canvas, <span class="hljs-literal">true</span>);
+
+    <span class="hljs-comment">// Scene creation</span>
+    initScene();
+
+    <span class="hljs-comment">// The render function</span>
+    engine.runRenderLoop(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">// Nothing to right now except rendering the scene</span>
+        scene.render();
+    });
+};
+    </code></pre>
+
+    And here is the function <code>initScene</code>:
+    <pre><code class="js hljs javascript">
+<span class="hljs-keyword">var</span> initScene = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// The scene creation</span>
+    scene = <span class="hljs-keyword">new</span> BABYLON.Scene(engine);
+
+    <span class="hljs-comment">// The camera creation</span>
+    camera = <span class="hljs-keyword">new</span> BABYLON.FreeCamera(<span class="hljs-string">"Camera"</span>, <span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>, <span class="hljs-number">5</span>, <span class="hljs-number">-30</span>), scene);
+    camera.setTarget(<span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">20</span>));
+    camera.maxZ = <span class="hljs-number">1000</span>;
+    camera.speed = <span class="hljs-number">4</span>;
+
+    <span class="hljs-comment">// Hemispheric light to enlight the scene</span>
+    <span class="hljs-keyword">var</span> h = <span class="hljs-keyword">new</span> BABYLON.HemisphericLight(<span class="hljs-string">"hemi"</span>, <span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0</span>), scene);
+    h.intensity = <span class="hljs-number">0.6</span>;
+
+    <span class="hljs-comment">// A directional light to add some colors</span>
+    <span class="hljs-keyword">var</span> d = <span class="hljs-keyword">new</span> BABYLON.DirectionalLight(<span class="hljs-string">"dir"</span>, <span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>,<span class="hljs-number">-0.5</span>,<span class="hljs-number">0.5</span>), scene);
+    d.position = <span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0.1</span>,<span class="hljs-number">100</span>,<span class="hljs-number">-100</span>);
+    d.intensity = <span class="hljs-number">0.4</span>;
+    <span class="hljs-comment">// Purple haze, all around !</span>
+    d.diffuse = BABYLON.Color3.FromInts(<span class="hljs-number">204</span>,<span class="hljs-number">196</span>,<span class="hljs-number">255</span>);
+
+    <span class="hljs-comment">// ground</span>
+    ground = BABYLON.Mesh.CreateGround(<span class="hljs-string">"ground"</span>, <span class="hljs-number">800</span>, <span class="hljs-number">2000</span>, <span class="hljs-number">2</span>, scene);
+
+    <span class="hljs-comment">// ship</span>
+    ship = <span class="hljs-keyword">new</span> Ship(<span class="hljs-number">1</span>, scene);
+};
+    </code></pre>
+
+    Let's slow down for a minute and explain all of this. First, the engine and
+    the main camera are created (see <a href="http://www.pixelcodr.com/tutos/toad_attack/toad_attack.html">first tutorial part 1</a>).
+
+    The target of the camera is set to the horizon (don't forget the 
+z-axis is in front of us, and the x-axis is along your left hand),
+    and its range is set to 1000 units.<br>
+    The hemispheric light will play the part of our sun by enlighting 
+the whole scene. A directional light is added to give some pastel colors
+    to our prototype (purple everywhere !).<br><br>
+    Ok, you know all of that. But what the hell is a <b>ship</b> ?
+
+    <h2>Ladies and gentlemen : the ship !</h2>
+<p>
+
+    The ship will be a custom class extending the class BABYLON.Mesh, and will represents the player in our game.<br>
+    To create a ship, let's start by creating a new javascript file (in your <code>js</code> folder) called <code>Ship.js</code>.
+    Don't forget to add it in your HTML file, otherwise an error <code>undefined is not a function</code> will be raised.
+    </p>
+    <p>
+    Let's look at the code of the <code>Ship.js</code> file :
+
+        </p><pre><code class="js hljs javascript">
+<span class="hljs-comment">/**
+* A mesh representing the player ship
+* @param size The ship size
+* @param scene The scene where the ship will be created
+* @constructor
+*/</span>
+Ship = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">size, scene</span>) </span>{
+    <span class="hljs-comment">// Call the super class BABYLON.Mesh</span>
+    BABYLON.Mesh.call(<span class="hljs-keyword">this</span>, <span class="hljs-string">"ship"</span>, scene);
+    <span class="hljs-comment">// Creates a box (yes, our ship will be a box)</span>
+    <span class="hljs-keyword">var</span> vd = BABYLON.VertexData.CreateBox(size);
+    <span class="hljs-comment">// Apply the box shape to our mesh</span>
+    vd.applyToMesh(<span class="hljs-keyword">this</span>, <span class="hljs-literal">false</span>);
+
+    <span class="hljs-comment">// To be continued...</span>
+};
+
+<span class="hljs-comment">// Our object is a BABYLON.Mesh</span>
+Ship.prototype = <span class="hljs-built_in">Object</span>.create(BABYLON.Mesh.prototype);
+<span class="hljs-comment">// And its constructor is the Ship function described above.</span>
+Ship.prototype.constructor = Ship;
+        </code></pre>
+
+    The <code>Ship</code> function is our constructor, the function called when our ship is created in our scene.
+    In this constructor, the super constructor of BABYLON.Mesh is called : that way, our ship <span class="purple">extends</span> a Mesh.
+    Then, we create a box and apply this box shape to our mesh.<br>
+    Now, we will add some parameters specific to our game.
+    <p></p>
+
+<p>
+    Add this in our Ship constructor :
+    </p><pre><code class="js hljs javascript">
+<span class="hljs-comment">// Our ship is all fresh (for now)</span>
+<span class="hljs-keyword">this</span>.killed = <span class="hljs-literal">false</span>;
+<span class="hljs-comment">// It has 3 bullets to destroy buildings</span>
+<span class="hljs-keyword">this</span>.ammo = <span class="hljs-number">3</span>;
+
+<span class="hljs-comment">// Its position is in (0,0), and a little bit above the ground.</span>
+<span class="hljs-keyword">this</span>.position.x = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">this</span>.position.z = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">this</span>.position.y = size/<span class="hljs-number">2</span>;
+
+<span class="hljs-comment">// Movement attributes</span>
+<span class="hljs-keyword">this</span>.speed = <span class="hljs-number">3</span>;
+<span class="hljs-keyword">this</span>.moveLeft = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">this</span>.moveRight = <span class="hljs-literal">false</span>;
+
+<span class="hljs-comment">// To be continued....</span>
+    </code></pre>
+
+    Nothing really difficult to understand here, isn't it ? Cool :) <br>
+    Now you know what is a ship, let's go back to our scene. By the way,
+ did you try to run your game in a browser ? Here is what it looks like :
+    <div class="centerImg"><img src="plane_files/plane01.png"></div>
+<p></p>
+
+    <h2>The ammunition label</h2>
+
+    <p>
+        We need the player to see how much ammunition he has. To do this, we will add the amount of remaining bullets
+        in the HTML page, like this :
+
+        </p><pre><code class="html hljs xml">
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"renderCanvas"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"ammoLabel"</span>&gt;</span>AMMO : 3<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+        </code></pre>
+    And with a little bit of CSS :
+    <pre><code class="css hljs">
+<span class="hljs-selector-id">#ammoLabel</span> {
+    <span class="hljs-attribute">position</span>:absolute;
+    <span class="hljs-attribute">top</span>:<span class="hljs-number">20px</span>;
+    <span class="hljs-attribute">left </span>: <span class="hljs-number">20px</span>;
+    <span class="hljs-attribute">color</span>:white;
+    <span class="hljs-attribute">font-size</span>: <span class="hljs-number">2em</span>;
+}
+    </code></pre>
+    The bullets number is now added in our game ! Yeah ! We will make it dynamic later, don't worry.<br>
+    <p></p>
+
+    <h2>It is moving !</h2>
+
+    <p>Right now, our ship is a little bit static. We want the player to be able to move it to the left
+    and to the right. Let's change that by adding a private method in our <code>Ship</code> class.
+</p><pre><code class="js hljs javascript">
+Ship.prototype._initMovement = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+
+    <span class="hljs-comment">// When a key is pressed, set the movement</span>
+    <span class="hljs-keyword">var</span> onKeyDown = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt</span>) </span>{
+        <span class="hljs-comment">// To the left</span>
+        <span class="hljs-keyword">if</span> (evt.keyCode == <span class="hljs-number">37</span>) {
+            ship.moveLeft = <span class="hljs-literal">true</span>;
+            ship.moveRight = <span class="hljs-literal">false</span>;
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (evt.keyCode == <span class="hljs-number">39</span>) {
+            <span class="hljs-comment">// To the right</span>
+            ship.moveRight = <span class="hljs-literal">true</span>;
+            ship.moveLeft = <span class="hljs-literal">false</span>;
+        }
+    };
+
+    <span class="hljs-comment">// On key up, reset the movement</span>
+    <span class="hljs-keyword">var</span> onKeyUp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt</span>) </span>{
+        ship.moveRight = <span class="hljs-literal">false</span>;
+        ship.moveLeft = <span class="hljs-literal">false</span>;
+    };
+
+    <span class="hljs-comment">// Register events with the right Babylon function</span>
+    BABYLON.Tools.RegisterTopRootEvents([{
+        name: <span class="hljs-string">"keydown"</span>,
+        handler: onKeyDown
+    }, {
+        name: <span class="hljs-string">"keyup"</span>,
+        handler: onKeyUp
+    }]);
+};
+</code></pre>
+    Usually, privates methods in Javscript starts with an underscore, so
+ I did the same here. Two functions are defined, and are linked
+    to events <code>keydown</code> and <code>keyup</code>. You can use the method <code>BABYLON.Tools.UnregisterTopRootEvents</code>
+    to unregister your functions if you need it.
+    <p></p>
+
+    <p>
+    Now, we need to add a <code>move</code> function to our ship. The move function will move the camera and the ship to
+    make things easier to understand.<br>
+
+</p><pre><code class="js hljs javascript">
+Ship.prototype.move = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (ship.moveRight) {
+        ship.position.x += <span class="hljs-number">1</span>;
+        camera.position.x += <span class="hljs-number">1</span>;
+    }
+    <span class="hljs-keyword">if</span> (ship.moveLeft) {
+        ship.position.x += <span class="hljs-number">-1</span>;
+        camera.position.x += <span class="hljs-number">-1</span>;
+    }
+};
+</code></pre>
+    Only the x position of the ship is updated here.
+    <p></p>
+    <p>
+        Finally, we need to update the render method to call this function if the player is not killed :
+
+</p><pre><code class="js hljs javascript">
+<span class="hljs-comment">// The render function</span>
+engine.runRenderLoop(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (! ship.killed) {
+        ship.move();
+
+        camera.position.z += ship.speed;
+        ship.position.z += ship.speed;
+        ground.position.z += ship.speed;
+    }
+    scene.render();
+});
+</code></pre>
+
+    In the render function, the ground, the camera and the ship will always move along the z-axis. To the infinity and beyond !
+    <p></p>
+
+    <p>
+        What you may ask, is why use boolean values for moveLeft and moveRight instead of incrementing directly the
+        ship x-position. Well, you can try, but you will see that the render function is much more executed than the
+        event 'keydown' and 'keyup' are fired. By doing this way, the movement is much more smoother.
+    </p>
+
+
+<h2>Building generation</h2>
+
+    <p>
+        Our buildings will be boxes, in which several actions will be attached. Let's create a function called <code>box</code>.
+        This function will generate a box with a random size at a random position :
+        </p><pre><code class="js hljs javascript">
+<span class="hljs-comment">/**
+ * Stolen from the babylon source code
+ */</span>
+<span class="hljs-keyword">var</span> randomNumber = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">min, max</span>) </span>{
+    <span class="hljs-keyword">if</span> (min == max) {
+        <span class="hljs-keyword">return</span> (min);
+    }
+    <span class="hljs-keyword">var</span> random = <span class="hljs-built_in">Math</span>.random();
+    <span class="hljs-keyword">return</span> ((random * (max - min)) + min);
+};
+
+<span class="hljs-keyword">var</span> box = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> minZ = camera.position.z+<span class="hljs-number">500</span>;
+    <span class="hljs-keyword">var</span> maxZ = camera.position.z+<span class="hljs-number">1500</span>;
+    <span class="hljs-keyword">var</span> minX = camera.position.x - <span class="hljs-number">100</span>, maxX = camera.position.x+<span class="hljs-number">100</span>;
+    <span class="hljs-keyword">var</span> minSize = <span class="hljs-number">2</span>, maxSize = <span class="hljs-number">10</span>;
+
+    <span class="hljs-keyword">var</span> randomX, randomZ, randomSize;
+
+    randomX = randomNumber(minX, maxX);
+    randomZ = randomNumber(minZ, maxZ);
+    randomSize = randomNumber(minSize, maxSize);
+
+    <span class="hljs-keyword">var</span> b = BABYLON.Mesh.CreateBox(<span class="hljs-string">"bb"</span>, randomSize, scene);
+
+    b.scaling.x = randomNumber(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.5</span>);
+    b.scaling.y = randomNumber(<span class="hljs-number">4</span>, <span class="hljs-number">8</span>);
+    b.scaling.z = randomNumber(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>);
+
+    b.position.x = randomX;
+    b.position.y = b.scaling.y/<span class="hljs-number">2</span> ;
+    b.position.z = randomZ;
+
+    <span class="hljs-comment">// To be continued</span>
+};
+
+        </code></pre>
+ Now, we want to add two actions :
+    <ul>
+        <li>When the player collides with one building, the ship is <b>killed</b></li>
+        <li>When the player clicks on one building, and if he has at 
+least one ammo, the building dissapears and the number of ammo decreases</li>
+    </ul>
+It is easy to do it with the <b>Action system</b> of Babylon.
+    <p></p>
+
+    <h2>Actions and ActionManager</h2>
+    <p>
+        In the wonderful Babylon world, an <span class="purple">action</span> can be launched by a <span class="purple">trigger</span> with a <span class="purple">condition</span>.
+        There are 3 kind of triggers right now (several triggers linked to the keyboard are being developped):
+        </p><ul>
+            <li>An intersection between two meshes</li>
+            <li>A click on a mesh (left click, right click, middle click)</li>
+            <li>A pointer over a mesh</li>
+        </ul>
+
+        There are several kind of actions, and in bold are the one we will implement in this tutorial:
+    <ul>
+        <li>The values actions:</li>
+        <ul>
+            <li><b>SwitchBooleanAction</b></li>
+            <li>SetValueAction</li>
+            <li><b>IncrementValueAction</b></li>
+            <li>InterpolateValueAction</li>
+            <li>SetParentAction</li>
+        </ul>
+        <li>The animations actions:</li>
+        <ul>
+            <li>PlayAnimationAction</li>
+            <li>StopAnimationAction</li>
+        </ul>
+        <li>The custom actions:</li>
+        <ul>
+            <li>CombineAction</li>
+            <li><b>ExecuteCodeAction</b></li>
+        </ul>
+    </ul>
+
+    And only 3 kinds of Conditions are available for now:
+    <ul>
+        <li>ValueCondition</li>
+        <li>PredicateCondition</li>
+        <li>StateCondition</li>
+    </ul>
+
+    All actions, triggers and conditions are described <a href="https://github.com/BabylonJS/Babylon.js/wiki/How-to-use-Actions">here.</a>
+    Don't hesitate to take a look at it before continuing.
+    <p></p>
+
+    <h2>One action to rule them all</h2>
+    <p>
+        The next feature to implement is this one : "If the ship collides with one building, the game is over".<br>
+        So, let's start by defining a new intersection trigger. Add these lines in the <code>box</code> function :
+
+        </p><pre><code class="js hljs javascript">
+<span class="hljs-comment">// We must create a new ActionManager for our building in order to use Actions.</span>
+b.actionManager = <span class="hljs-keyword">new</span> BABYLON.ActionManager(scene);
+
+<span class="hljs-comment">// The trigger is OnIntersectionEnterTrigger</span>
+<span class="hljs-keyword">var</span> trigger = {trigger:BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: ship};
+        </code></pre>
+
+    Here, a trigger is an object with 2 parameter : the kind of trigger 
+used, and the object this building will collide with (the ship).
+    Easy right ? Now, let's switch our ship attribute <code>killed</code> to true when the collision is done.
+    <pre><code class="js hljs javascript">
+<span class="hljs-comment">// Our first action !</span>
+<span class="hljs-keyword">var</span> sba = <span class="hljs-keyword">new</span> BABYLON.SwitchBooleanAction(trigger, ship, <span class="hljs-string">"killed"</span>);
+b.actionManager.registerAction(sba);
+    </code></pre>
+    We create a new SwitchBooleanAction with the trigger. The two last 
+parameters are the boolean attribute to switch (killed) and the
+    object containing this attribute (the ship).
+    <p></p>
+    <p>
+        To try it, add this function in your scene initialization :
+    </p><pre><code class="js hljs javascript">
+setInterval(box, <span class="hljs-number">100</span>);
+    </code></pre>
+    This will create a new box every 100ms, adjust this value as you 
+wish. You can try to run the game now, and do not hesitate to
+    crash in one of the building :)
+    <p></p>
+
+    <h2>One action to find them</h2>
+    <p>
+        The next feature to implement is this one : <code>The player can click on one building to destroy it, but it consumes one bullet</code>.
+        We will add a <code>OnPickTrigger</code>, and add a custom action <code>ExecuteCodeAction</code>, but first, we need to check
+        if the player has at least one bullet, with a <code>Condition</code> :
+
+</p><pre><code class="js hljs javascript">
+<span class="hljs-comment">// condition : ammo &gt; 0</span>
+<span class="hljs-keyword">var</span> condition = <span class="hljs-keyword">new</span> BABYLON.ValueCondition(b.actionManager, ship, <span class="hljs-string">"ammo"</span>, <span class="hljs-number">0</span>, BABYLON.ValueCondition.IsGreater);
+</code></pre>
+    Our condition takes our object and the attribute to test (ammo), and the operator (<code>IsGreater</code>) and the value to compare with (0).
+<pre><code class="js hljs javascript">
+<span class="hljs-keyword">var</span> onpickAction = <span class="hljs-keyword">new</span> BABYLON.ExecuteCodeAction(
+    BABYLON.ActionManager.OnPickTrigger,
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt</span>) </span>{
+        <span class="hljs-keyword">if</span> (evt.meshUnderPointer) {
+            <span class="hljs-comment">// Find the clicked mesh</span>
+            <span class="hljs-keyword">var</span> meshClicked = evt.meshUnderPointer;
+            <span class="hljs-comment">// Detroy it !</span>
+            meshClicked.dispose();
+            <span class="hljs-comment">// Reduce the number of ammo by one</span>
+            ship.ammo -= <span class="hljs-number">1</span>;
+            <span class="hljs-comment">// Update the ammo label</span>
+            ship.sendEvent();
+        }
+    },
+    condition);
+
+b.actionManager.registerAction(onpickAction);
+</code></pre>
+Instead of a condition, we could have add a <code>if</code> statement in our action, but it would be less fun :)
+    <p></p>
+
+    <p>And that's all for the action system ! Tell me what you think about it in the comments :)</p>
+
+    <h2>Update the munition label</h2>
+    Finally, we want to update the munition label on our page. To do so, add these two functions in your Ship :
+<pre><code class="js hljs javascript">
+<span class="hljs-comment">// Send the event ammo updated</span>
+Ship.prototype.sendEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> e = <span class="hljs-keyword">new</span> Event(<span class="hljs-string">'ammoUpdated'</span>);
+    <span class="hljs-built_in">window</span>.dispatchEvent(e);
+};
+
+<span class="hljs-comment">// Create the event hook</span>
+Ship.prototype._initLabelUpdate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// Update the html part</span>
+    <span class="hljs-keyword">var</span> updateAmmoLabel = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"ammoLabel"</span>).innerHTML = <span class="hljs-string">"AMMO : "</span>+ship.ammo;
+    };
+
+    BABYLON.Tools.RegisterTopRootEvents([{
+        name:<span class="hljs-string">"ammoUpdated"</span>,
+        handler : updateAmmoLabel
+    }]);
+};
+</code></pre>
+    <p>You just have to call the function <code>_initLabelUpdate</code> in your ship constructor.</p>
+
+    <h2>The fog</h2>
+
+        The last thing to do : add some fog :) I did it by adding only 2 lines in my function <code>initScene</code> :
+
+        <pre><code class="js hljs javascript">
+scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
+scene.fogDensity = <span class="hljs-number">0.01</span>;
+        </code></pre>
+
+    The first line is to enable the fog in my scene by giving him a fogMode, the second is the fog density.
+    <p></p>
+
+    <h2>What's next ?</h2>
+    <p>You just finished your second game prototype with Babylon.js using the actions system. Congrats :)
+        <span class="purple">Click on the image below to get the final code source</span> if you want to take a look at it. I updated/add several things in it, but feel free to
+        modify it as you wish.<br>
+    </p><div class="centerImg" style="padding:0">
+        <a href="http://www.pixelcodr.com/tutos/plane/zip/plane.zip">
+            <img class="shadow" src="plane_files/games.png" style="width:150px">
+        </a>
+    </div>
+    <p></p>
+    <hr>
+
+    <p>
+        If you have any questions about it, feel free to email me at <span class="purple">temechon <code>[at]</code> pixelcodr <code>[dot]</code> com</span>, or leave a comment below,
+        I'll answer quickly. <br>You can also <a href="http://eepurl.com/ZlBTX">subscribe to the newsletter</a> and you will receive an email when a new tutorial is out. No spam, and unsubscribe whenever you want.
+        <br><br>
+        Cheers !
+    </p>
+</div>
+</div></div></div><!-- Piwik--><script type="text/javascript">var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+var u="//pixelcodr.com/analytics/";
+_paq.push(['setTrackerUrl', u+'piwik.php']);
+_paq.push(['setSiteId', 1]);
+var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+})();</script><noscript><p><img src="//pixelcodr.com/analytics/piwik.php?idsite=1" style="border:0;" alt=""></p></noscript><!-- End Piwik Code--></body></html>

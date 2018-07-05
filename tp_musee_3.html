@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+        <!-- Babylon.js -->
+        <script src="dist/cannon.js"></script>
+        <script src="dist/Oimo.js"></script>
+        <script src="dist/babylon.js"></script>
+		<script src="data.js"></script>
+        <link rel="stylesheet" type="text/css" href="app.css"/>
+        
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone">
+        <canvas id="renderCanvas"></canvas>
+    </div>
+    <div id="fenetreModal" class="modal">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2 id="mon-texte"></h2>
+            </div>
+        </div>
+    </div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+        var loader=null;
+        
+        var point = new BABYLON.Vector3(0.0,0.2,19) ; 
+        var temps = 0.0 ; 
+		var hitbox, sphereModal;
+		var camera;
+		var wall_room1;
+		var wall_room2;
+        var canDisplay = false;
+        var title_Tab;
+        var text_Tab;
+        
+        var createStairs = function (scene){
+        	var mat_month = new BABYLON.StandardMaterial("month",scene);
+			mat_month.diffuseTexture = new BABYLON.Texture("Textures/Stone_Wall_007_COLOR.jpg",scene);
+
+			var ground_width =  30/8;
+            var ground_depth = 30;
+            var depth = 0.5;
+            var height= 10/8;
+            var myArray = [];
+            var myArray_rotate = [];
+             
+            for (var i = 0;i<17;i++){
+					myArray[i]=BABYLON.MeshBuilder.CreateBox("stairs_step:"+ i, {height: height/2, width: ground_width, depth: depth/4}, scene);
+					myArray_rotate[i]=BABYLON.MeshBuilder.CreateBox("stairs_step_rotate:"+ i, {height: height/2, width: ground_width, depth: depth/4}, scene);
+					myArray_rotate[i].rotation.x = Math.PI/2;
+					myArray[i].material=mat_month;
+					myArray_rotate[i].material=mat_month;
+
+					myArray[i].position= new BABYLON.Vector3( -ground_depth/2 + (depth+ground_width/2) ,(depth/2)*(i+1) +(height/4)*i - depth/4, -ground_depth/3 -depth*2 + (height/2)*i ); 
+					myArray_rotate[i].position= new BABYLON.Vector3( -ground_depth/2 + (depth+ground_width/2) , (depth/2)*(i+2) +(height/4)*i - depth/4, -ground_depth/3 -depth*2 + depth/2 + (height/2)*i );
+					myArray[i].checkCollisions=true;
+					myArray_rotate[i].checkCollisions=true;
+			}
+			
+		}
+
+		var createBanc = function (scene){
+			var ground_width =  30;
+			depth = 0.5;
+			height = 1;
+			width = 5;
+			depth_banc = 2;
+
+			var banc_mat = new BABYLON.StandardMaterial("banc",scene);
+            banc_mat.diffuseTexture = new BABYLON.Texture("Textures/Stone_Wall_007_COLOR.jpg",scene);
+				
+				
+			var banc1 = BABYLON.MeshBuilder.CreateBox("wall_left", {height: height, width: width, depth: depth_banc}, scene); 
+			banc1.position = new BABYLON.Vector3( -ground_width/2 + width, height/2, ground_width/4);
+			banc1.material = banc_mat;
+			
+			var banc2 = BABYLON.MeshBuilder.CreateBox("wall_left", {height: height, width: width, depth: depth_banc}, scene); 
+			banc2.position = new BABYLON.Vector3( 0.0, height/2, ground_width/4);
+			banc2.material = banc_mat;
+
+			var banc3 = BABYLON.MeshBuilder.CreateBox("wall_right", {height: height, width: width, depth: depth_banc}, scene); 
+			banc3.position = new BABYLON.Vector3( +ground_width/2 - width, height/2, ground_width/4);
+			banc3.material = banc_mat;
+			
+		}
+        var createScene = function () {
+        
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+        
+            // This creates and positions a free camera (non-mesh)
+            camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 1.7, -10), scene);
+
+
+        
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+        
+            // This attaches the camera to the canvas
+			//Esto es muy necesario porque sino la camara no puede moverse!
+            camera.attachControl(canvas, true);
+
+			//musee.js, après la déclaration de la camera.
+			camera.keysLeft = [81, 37]; //Q et <-
+			camera.keysUp = [90, 38]; //Z et Flèche du haut
+			camera.keysRight = [68, 39]; //D et ->
+			camera.keysDown = [83, 40]; //S et flèche du bas
+
+            camera.speed = 0.9;
+            //camera.applyGravity = true; //deja fait en bas
+            camera.angularSensibility = 15000; //Plus la valeur est elevée, moins la caméra tournera vite.
+        
+			//Esfera invisible para colision
+			
+			point.x = camera.position.x ; 
+			point.y = camera.position.y ;
+			point.z = camera.position.z ;
+			
+			
+			//Sphere for light in each room
+			invisibleMat = new BABYLON.StandardMaterial("Invisible Material", scene);
+			invisibleMat.alpha = 0;
+			
+			sphereModal1 = BABYLON.Mesh.CreateSphere("sphereModal1", 16, 10, scene);
+			sphereModal1.position = new BABYLON.Vector3(-9.5, 0 , 1);
+			sphereModal1.material = invisibleMat;
+			sphereModal1.checkCollisions = false;
+			sphereModal1.backFaceCulling = false;
+			
+			sphereModal2 = BABYLON.Mesh.CreateSphere("sphereModal2", 16, 10, scene);
+			sphereModal2.position = new BABYLON.Vector3(0, 0 , 5);
+			sphereModal2.material = invisibleMat;
+			sphereModal2.checkCollisions = false;
+			sphereModal2.backFaceCulling = false;
+
+			
+			sphereModal3 = BABYLON.Mesh.CreateSphere("sphereModal3", 16, 10, scene);
+			sphereModal3.position = new BABYLON.Vector3(9.5, 0 , 1);
+			sphereModal3.material = invisibleMat;
+			sphereModal3.checkCollisions = false;
+			sphereModal3.backFaceCulling = false;
+        
+        	sphereModalDescri1 = BABYLON.Mesh.CreateSphere("sphereModalDescri1", 4, 4, scene);
+        	sphereModalDescri1.position = new BABYLON.Vector3(-10, 2, 12);
+        	sphereModalDescri1.material = invisibleMat;
+            
+            sphereModalDescri2 = BABYLON.Mesh.CreateSphere("sphereModalDescri2", 4, 4, scene);
+        	sphereModalDescri2.position = new BABYLON.Vector3(-13, 2, 9);
+        	sphereModalDescri2.material = invisibleMat;
+            
+            sphereModalDescri3 = BABYLON.Mesh.CreateSphere("sphereModalDescri3", 4, 4, scene);
+        	sphereModalDescri3.position = new BABYLON.Vector3(-7, 2, 9);
+        	sphereModalDescri3.material = invisibleMat;
+            
+            sphereModalDescri4 = BABYLON.Mesh.CreateSphere("sphereModalDescri4", 4, 4, scene);
+        	sphereModalDescri4.position = new BABYLON.Vector3(0, 2, 12);
+        	sphereModalDescri4.material = invisibleMat;
+            
+            sphereModalDescri5 = BABYLON.Mesh.CreateSphere("sphereModalDescri5", 4, 4, scene);
+        	sphereModalDescri5.position = new BABYLON.Vector3(-3, 2, 9);
+        	sphereModalDescri5.material = invisibleMat;
+            
+            sphereModalDescri6 = BABYLON.Mesh.CreateSphere("sphereModalDescri6", 4, 4, scene);
+        	sphereModalDescri6.position = new BABYLON.Vector3(3, 2, 9);
+        	sphereModalDescri6.material = invisibleMat;
+
+			sphereModalDescri7 = BABYLON.Mesh.CreateSphere("sphereModalDescri7", 4, 4, scene);
+        	sphereModalDescri7.position = new BABYLON.Vector3(10, 2, 12);
+        	sphereModalDescri7.material = invisibleMat;
+            
+            sphereModalDescri8 = BABYLON.Mesh.CreateSphere("sphereModalDescri8", 4, 4, scene);
+        	sphereModalDescri8.position = new BABYLON.Vector3(7, 2, 9);
+        	sphereModalDescri8.material = invisibleMat;
+            
+            sphereModalDescri9 = BABYLON.Mesh.CreateSphere("sphereModalDescri9", 4, 4, scene);
+        	sphereModalDescri9.position = new BABYLON.Vector3(13, 2, 9);
+        	sphereModalDescri9.material = invisibleMat;
+
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+			light.diffuse = new BABYLON.Color3(1, 1, 1); //couleur de la lumière
+			light.specular = new BABYLON.Color3(1, 1, 1); //intensité de sa brillance*/
+
+        
+            
+            
+            var ground_width =  30;
+            var ground_depth = 30;
+            var depth = 0.5;
+            var height= 10;
+            var j = 0.0;
+            var month = true;
+
+            var mat_sol = new BABYLON.StandardMaterial("sol",scene);
+            mat_sol.diffuseTexture = new BABYLON.Texture("assets/240.jpg",scene);
+            // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
+            var ground = BABYLON.Mesh.CreateGround("ground1", ground_width, ground_depth, 20, scene);
+			var ground_haut = BABYLON.Mesh.CreateGround("ground_haut", ground_width, ground_depth/2, 20, scene);
+			ground_haut.position = new BABYLON.Vector3( 0.0 , height+0.1, (ground_depth/2) - (ground_depth/4) );
+			ground_haut.checkCollisions = true;
+			ground.material = mat_sol;
+			ground_haut.material = mat_sol;
+
+			var ground_haut1 = BABYLON.Mesh.CreateGround("ground_haut", ground_width, ground_depth/2, 20, scene);
+			ground_haut1.position = new BABYLON.Vector3( 0.0 , height, (ground_depth/2) - (ground_depth/4) );
+			ground_haut1.rotation.x = Math.PI;
+			ground_haut1.checkCollisions = true;
+			/*var ground = BABYLON.Mesh.CreatePlane("ground", 50, scene);
+			ground.rotation.x = Math.PI / 2;
+			ground.material = new BABYLON.StandardMaterial("gMaterial", scene);
+			ground.material.diffuseTexture = new BABYLON.Texture("assets/images/grasspt.png", scene);
+			ground.checkCollisions = true;*/
+			
+			
+			/* *************************************** */
+			var mat_mur = new BABYLON.StandardMaterial("mur",scene);
+			mat_mur.diffuseTexture = new BABYLON.Texture("Textures/Wood_002_COLOR.jpg",scene);
+
+
+			var mat_mur_devant = new BABYLON.StandardMaterial("mur_devant",scene);
+			mat_mur_devant.diffuseTexture = new BABYLON.Texture("Textures/Wood_001_COLOR.jpg",scene);
+
+			var mat_month = new BABYLON.StandardMaterial("month",scene);
+			mat_month.diffuseTexture = new BABYLON.Texture("Textures/Stone_Wall_007_COLOR.jpg",scene);
+
+			var wall_back = BABYLON.MeshBuilder.CreateBox("wall_back", {height: 2*height, width: ground_width, depth: depth}, scene);
+			wall_back.position = new BABYLON.Vector3( 0.0 , height/2, ( (ground_depth/2) - (depth/2) ) );
+			wall_back.checkCollisions = true;
+			wall_back.material=mat_mur;
+			/*wall_back.position.x= 0;
+			wall_back.position.y= height/2;
+			wall_back.position.z= ( (ground_depth/2) - (depth/2) );*/
+			
+			var wall_left = BABYLON.MeshBuilder.CreateBox("wall_left", {height: 2*height, width: 0.5, depth: ground_depth}, scene); 
+			wall_left.position = new BABYLON.Vector3( -( (ground_width/2) - (depth/2) ), height/2, 0.0);
+			wall_left.checkCollisions = true;
+			wall_left.material=mat_mur;
+			/*wall_left.position.x = -( (ground_width/2) - (depth/2) );
+			wall_left.position.y= height/2;
+			wall_left.position.z= 0;*/
+			
+			
+			var wall_right = BABYLON.MeshBuilder.CreateBox("wall_right", {height: 2*height, width: 0.5, depth: ground_depth}, scene);
+			wall_right.position = new BABYLON.Vector3( ( (ground_width/2) - (depth/2) ), height/2, 0.0);
+			wall_right.checkCollisions = true;
+			wall_right.material=mat_mur;
+			/*wall_right.position.x= ( (ground_width/2) - (depth/2) );
+			wall_right.position.y= height/2;
+			wall_right.position.z= 0;*/
+			
+			var wall_front = BABYLON.MeshBuilder.CreateBox("wall_back", {height: 2*height, width: 0.5, depth: ground_depth}, scene);
+			wall_front.position = new BABYLON.Vector3( 0.0, height/2, - ground_width/2);
+			wall_front.rotation.y=Math.PI/2;
+			wall_front.checkCollisions = true;
+			wall_front.material=mat_mur;
+			
+			wall_room1 = BABYLON.MeshBuilder.CreateBox("wall_room1", {height: height, width: 0.5, depth: 15}, scene); // nom, { hauteur, epaisseur de chaque coté, longueur 
+			wall_room1.position = new BABYLON.Vector3( -0.33*(ground_width/2), height/2, (ground_depth/4));//(ground_depth/2) - ( (ground_depth/10)/2 )
+			wall_room1.checkCollisions = true;
+			wall_room1.material=mat_mur;
+			
+			var rembarde = BABYLON.MeshBuilder.CreateBox("rembarde", {height: height/3, width: 2*ground_width/3, depth: depth}, scene);
+			rembarde.rotation.x=Math.PI;
+			rembarde.position =  new BABYLON.Vector3( 0.0, height + depth, 0.0);
+			rembarde.checkCollisions = true;
+
+			wall_room2 = BABYLON.MeshBuilder.CreateBox("wall_room2", {height: height, width: 0.5, depth: 15}, scene);
+			wall_room2.position = new BABYLON.Vector3( 0.33*(ground_width/2), height/2, (ground_depth/4));
+			wall_room2.checkCollisions = true;
+			wall_room2.material=mat_mur;
+			/*wall_room2.position.x= 0.33*(ground_width/2);
+			wall_room2.position.y= height/2;
+			wall_room2.position.z= (ground_depth/2) - ( (ground_depth/10)/2 );*/
+			
+
+			var wall_rooms1 = BABYLON.MeshBuilder.CreateBox("wall_rooms1", {height: height, width: ground_width/6, depth: depth}, scene);
+			var wall_rooms2 = BABYLON.MeshBuilder.CreateBox("wall_rooms2", {height: height, width: ground_width/6, depth: depth}, scene);
+			var wall_rooms3 = BABYLON.MeshBuilder.CreateBox("wall_rooms3", {height: height, width: ground_width/8, depth: depth}, scene);
+			var wall_rooms4 = BABYLON.MeshBuilder.CreateBox("wall_rooms4", {height: height, width: ground_width/8, depth: depth}, scene);
+			var wall_rooms_haut = BABYLON.MeshBuilder.CreateBox("wall_haut", {height: height/3, width: ground_width, depth: depth}, scene);
+			var wall_ascenseur = BABYLON.MeshBuilder.CreateBox("wall_ascenseur", {height: height, width: ground_width/8, depth: depth}, scene);
+			var sol_ascenseur = BABYLON.MeshBuilder.CreateBox("sol_ascenseur", {height: 4, width: 4, depth: depth}, scene);
+
+			wall_rooms1.position = new BABYLON.Vector3(-(ground_width/3 - ground_width/2) , height/2, 0.0 );
+			wall_rooms2.position = new BABYLON.Vector3(+(ground_width/3 - ground_width/2) , height/2, 0.0 );
+			wall_rooms3.position = new BABYLON.Vector3(+(ground_width/2 - ground_width/12 + depth) , height/2, 0.0 );
+			wall_rooms4.position = new BABYLON.Vector3(-(ground_width/2 - ground_width/12 + depth) , height/2, 0.0 );
+			wall_rooms_haut.position = new BABYLON.Vector3(0.0 , height - height/6, 0.0 );
+			wall_ascenseur.position = new BABYLON.Vector3(+ground_width/2 -ground_width/16, height/2, -ground_width/6 );
+			sol_ascenseur.position = new BABYLON.Vector3(+ground_width/2 -ground_width/16, depth/2 + j, -ground_width/12 );
+
+			wall_rooms1.material=mat_mur_devant;
+			wall_rooms2.material=mat_mur_devant;
+			wall_rooms3.material=mat_mur_devant;
+			wall_rooms4.material=mat_mur_devant;
+			wall_rooms_haut.material=mat_mur_devant;
+			rembarde.material=mat_mur_devant;
+			wall_ascenseur.material=mat_mur;
+			sol_ascenseur.rotation.x=Math.PI/2;
+			sol_ascenseur.checkCollisions = true;
+			var animationAscenseur = new BABYLON.Animation("myAnimation_Ascenseur", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+			
+			var keys = [];
+
+			keys.push({
+				frame: 0,
+				value: 0.0
+			})
+
+			keys.push({
+				frame: 100,
+				value: height
+			})
+
+			keys.push({
+				frame: 200,
+				value: 0.0
+			})
+			animationAscenseur.setKeys(keys);
+			sol_ascenseur.material=mat_month;
+			sol_ascenseur.animations = [];
+			sol_ascenseur.animations.push(animationAscenseur);
+
+			wall_rooms1.checkCollisions = true;
+			wall_rooms2.checkCollisions = true;
+			wall_rooms3.checkCollisions = true;
+			wall_rooms4.checkCollisions = true;
+			wall_ascenseur.checkCollisions = true;
+			var stairs = createStairs(scene);
+			var bancs = createBanc(scene);
+
+			var pancarte_esc = BABYLON.MeshBuilder.CreateBox("pancarte_esc", {height: height/4, width: ground_width/7, depth: depth}, scene);
+			pancarte_esc.position = new BABYLON.Vector3(-ground_width/2 +ground_width/3, height/2, -depth);
+			var pancarte_asc = BABYLON.MeshBuilder.CreateBox("pancarte_asc", {height: height/4, width: ground_width/7, depth: depth}, scene);
+			pancarte_asc.position = new BABYLON.Vector3(+ground_width/2 -ground_width/3, height/2, -depth);
+			var pancarte_room1 = BABYLON.MeshBuilder.CreateBox("pancarte_1", {height: height/4, width: ground_width/7, depth: depth}, scene);
+			pancarte_room1.position = new BABYLON.Vector3(-ground_width/2 +ground_width/5, height -height/6, -depth);
+			
+			var pancarte_room2 = BABYLON.MeshBuilder.CreateBox("pancarte_2", {height: height/4, width: ground_width/7, depth: depth}, scene);
+			pancarte_room2.position = new BABYLON.Vector3(+ground_width/2 -ground_width/5, height -height/6, -depth);
+			
+			var pancarte_room3 = BABYLON.MeshBuilder.CreateBox("pancarte_3", {height: height/4, width: ground_width/7, depth: depth}, scene);
+
+			pancarte_room3.position = new BABYLON.Vector3(0.0, height -height/6, -depth);
+			
+			var txt_pancarte_escalier = new BABYLON.StandardMaterial("escalier",scene);
+			txt_pancarte_escalier.diffuseTexture = new BABYLON.Texture("assets/escaliers.png",scene);
+			pancarte_esc.material = txt_pancarte_escalier;
+
+			var txt_pancarte_ascenseur = new BABYLON.StandardMaterial("ascenseur",scene);
+			txt_pancarte_ascenseur.diffuseTexture = new BABYLON.Texture("Panneaux/Ascenseur.png",scene);
+			pancarte_asc.material = txt_pancarte_ascenseur;
+
+			var txt_pancarte_room1 = new BABYLON.StandardMaterial("room1",scene);
+			txt_pancarte_room1.diffuseTexture = new BABYLON.Texture("Panneaux/room1.png",scene);
+			pancarte_room1.material = txt_pancarte_room1;
+
+			var txt_pancarte_room2 = new BABYLON.StandardMaterial("room2",scene);
+			txt_pancarte_room2.diffuseTexture = new BABYLON.Texture("Panneaux/room2.png",scene);
+
+			var txt_pancarte_room3 = new BABYLON.StandardMaterial("room3",scene);
+			txt_pancarte_room3.diffuseTexture = new BABYLON.Texture("Panneaux/room3.png",scene);
+			pancarte_room2.material = txt_pancarte_room3;
+			pancarte_room3.material = txt_pancarte_room2;
+			/* ****************************************/
+			var defineMaterial = function (name){
+				var mat            = new BABYLON.StandardMaterial("materiau-"+i,scene);
+				mat.diffuseTexture = new BABYLON.Texture(name.nom,scene);
+				mat.diffuseColor = new BABYLON.Color3(255,255,255);
+				mat.backFaceCulling = false; /*on voit les images de deux cotes*/
+				
+				return mat
+			};	
+
+			var tableaux1 = data1.tableaux1 ; 
+			for(var i in tableaux1){
+				var tableau = tableaux1[i] ; 
+				var largeur = tableau["largeur"] ; 
+				var hauteur = tableau["hauteur"] ; 
+				var recto          = BABYLON.Mesh.CreatePlane("recto-"+i,1.0,scene) ; 
+				recto.scaling      = new BABYLON.Vector3(largeur/2.0,hauteur/2.0,1.0) ; 
+				//recto.position     = new BABYLON.Vector3(5*i,1.7,0.0) ; 
+				
+				
+				recto.material = defineMaterial(tableau);
+				
+				if(i==0){	
+					recto.position     = new BABYLON.Vector3(  -(ground_width/2)+(ground_width/6), height/2, ( (ground_depth/2) - (depth/2) )-0.5);
+					
+				}
+				if(i==1){	
+					recto.position     = new BABYLON.Vector3( -( (ground_width/2) - 0.5), 7, ( (ground_depth/2) - (depth/2) )-5);
+					recto.rotation.y = -80; //Es con el que mejor queda pero no esta perfecto, xq pasa???
+				}
+				if(i==2){	
+					recto.position     = new BABYLON.Vector3( -( (ground_width/2) - 0.5), height/2, ( (ground_depth/2) - (depth/2) )-3);
+					recto.rotation.y = -80; 
+				}
+				if(i==3){	
+					recto.position     = new BABYLON.Vector3( -( (ground_width/2) - 0.5), height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = -80;
+				}
+				if(i==4){
+					recto.position     = new BABYLON.Vector3( -( (ground_width/2) ) + ground_width/3 - depth, height/3, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+
+				}
+				if(i==5){
+					recto.position     = new BABYLON.Vector3( -( (ground_width/2) ) + ground_width/3 - depth, height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+
+				}
+		
+			
+				recto.checkCollisions = true ;
+			}
+
+			var tableaux2 = data1.tableaux2 ;
+			for(var i in tableaux2){
+				var tableau = tableaux2[i] ; 
+				var largeur = tableau["largeur"] ; 
+				var hauteur = tableau["hauteur"] ; 
+				var recto          = BABYLON.Mesh.CreatePlane("recto-"+i,1.0,scene) ; 
+				recto.scaling      = new BABYLON.Vector3(largeur/2.0,hauteur/2.0,1.0) ; 
+				//recto.position     = new BABYLON.Vector3(5*i,1.7,0.0) ; 
+				
+				
+				recto.material = defineMaterial(tableau);
+				
+				if(i==0){	
+					recto.position     = new BABYLON.Vector3(  0.0, height/2, ( (ground_depth/2) - (depth/2) )-0.5);
+					
+				}
+				if(i==1){	
+					recto.position     = new BABYLON.Vector3( -ground_width/6 + depth, 7, ( (ground_depth/2) - (depth/2) )-5);
+					recto.rotation.y = -80; //Es con el que mejor queda pero no esta perfecto, xq pasa???
+				}
+				if(i==2){	
+					recto.position     = new BABYLON.Vector3( -ground_width/6 + depth, height/2, ( (ground_depth/2) - (depth/2) )-3);
+					recto.rotation.y = -80; 
+				}
+				if(i==3){	
+					recto.position     = new BABYLON.Vector3( -ground_width/6 + depth, height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = -80;
+				}
+				if(i==4){
+					recto.position     = new BABYLON.Vector3( +ground_width/6 - depth, height/3, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+				}
+				if(i==5){
+					recto.position     = new BABYLON.Vector3( +ground_width/6 - depth, height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+				}
+		
+			
+				recto.checkCollisions = true ;
+			}
+			var tableaux3 = data1.tableaux3 ; 
+			for(var i in tableaux3){
+				var tableau = tableaux3[i] ; 
+				var largeur = tableau["largeur"] ; 
+				var hauteur = tableau["hauteur"] ; 
+				var recto          = BABYLON.Mesh.CreatePlane("recto-"+i,1.0,scene) ; 
+				recto.scaling      = new BABYLON.Vector3(largeur/2.0,hauteur/2.0,1.0) ; 
+				//recto.position     = new BABYLON.Vector3(5*i,1.7,0.0) ; 
+				
+				
+				recto.material = defineMaterial(tableau);
+				
+				if(i==0){	
+					recto.position     = new BABYLON.Vector3(  +(ground_width/2)-(ground_width/6), height/2, ( (ground_depth/2) - (depth/2) )-0.5);
+					
+				}
+				if(i==1){	
+					recto.position     = new BABYLON.Vector3( +(ground_width/2) -(ground_width/3) + depth, 7, ( (ground_depth/2) - (depth/2) )-5);
+					recto.rotation.y = -80; //Es con el que mejor queda pero no esta perfecto, xq pasa???
+				}
+				if(i==2){	
+					recto.position     = new BABYLON.Vector3( +(ground_width/2) -(ground_width/3) + depth, height/2, ( (ground_depth/2) - (depth/2) )-3);
+					recto.rotation.y = -80; 
+				}
+				if(i==3){	
+					recto.position     = new BABYLON.Vector3( +(ground_width/2) -(ground_width/3) + depth, height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = -80;
+				}
+				if(i==4){
+					recto.position     = new BABYLON.Vector3( +(ground_width/2) -2*depth , height/3, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+
+				}
+				if(i==5){
+					recto.position     = new BABYLON.Vector3( +(ground_width/2) -2*depth, height/2, ( (ground_depth/2) - (depth/2) )-6);
+					recto.rotation.y = +80;
+
+				}
+		
+			
+				recto.checkCollisions = true ;
+			}
+			/* ****************************************/
+			/*Partie 6: Navigation*/
+			/* ****************************************/
+						
+			navigationMat = new BABYLON.StandardMaterial("Nav Sphere Material", scene);
+			navigationMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+			navigationMat.alpha = 0.7;
+			//navigationMat.wireframe = true; // mode "fils de fer"
+			
+			sphereNav1 = BABYLON.Mesh.CreateSphere("sphere Navigation 1", 16, 2, scene);
+			sphereNav1.position = new BABYLON.Vector3(0, 2, -3);
+			sphereNav1.material = navigationMat;
+			sphereNav1.checkCollisions = false;
+			sphereNav1.backFaceCulling = false;
+			sphereNav1.isPickable = true; 
+			
+
+			/* ****************************************/
+			// Partie 7 : Description des tableaux
+			// ======================
+			var fenetre = document.getElementById('fenetreModal');
+			var span = document.getElementsByClassName('close');
+			span.onClick = function(){
+				fenetreModal.style.display = "none";
+			}
+			window.onclick = function(event){
+				if(event.target == fenetreModal){
+					fenetreModal.style.display="none";
+				}
+			}
+
+			/* ****************************************/
+			// Gestion des collisions
+			// ======================
+
+			scene.gravity = new BABYLON.Vector3(0.0,-0.3,0.0) ; 
+			scene.collisionsEnabled = true ;
+			camera.applyGravity = true ;
+			camera.checkCollisions = true ; 
+			camera.ellipsoid = new BABYLON.Vector3(1.0,1.0,1.0) ; 
+			ground.checkCollisions = true ;
+
+			//Skybox 
+			var skybox = BABYLON.Mesh.CreateBox("skybox", 300, scene);
+
+	    	var skybox_mat = new BABYLON.StandardMaterial("m_skybox", scene);
+	    	
+	    	skybox_mat.backFaceCulling = false;
+			skybox_mat.disableLightning = true;
+			
+			skybox_mat.diffuseColor = new BABYLON.Color3(0, 0, 0);
+			skybox_mat.specularColor = new BABYLON.Color3(0, 0, 0);
+	    	skybox_mat.reflectionTexture = new BABYLON.CubeTexture("./Textures/skybox/skybox", scene);
+	    	skybox_mat.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+
+	    	skybox.material = skybox_mat;
+			skybox.infiniteDistance = true;
+	    
+	    //musee.js, dans la fonction createScene
+		var islocked = false;
+		scene.onPointerDown = function(evt){
+			
+			if (!islocked) //Si la souris n'est pas bloqué...
+			{
+			canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock || false; 
+				//Test des requêtes de divers navigateurs
+				if (canvas.requestPointerLock) //Si la requête aboutie,
+					canvas.requestPointerLock(); //On appelle la fonction
+			}
+			//En testant ici si evt === 0, 1 ou 2, on peut déterminer quel clic a été pressé, et on peut effectuer
+			//des actions liées à un clic.
+		};
+
+		//musee.js, dans la fonction createScene
+		document.addEventListener("pointerlockchange", pointerlockchange, false);
+		document.addEventListener("mspointerlockchange", pointerlockchange, false);
+		document.addEventListener("mozpointerlockchange", pointerlockchange, false);
+		document.addEventListener("webkitpointerlockchange", pointerlockchange, false);
+       
+		//musee.js, à mettre avant les évènements
+		var pointerlockchange = function () 
+		{
+			var controlEnabled = document.mozPointerLockElement || document.webkitPointerLockElement || document.msPointerLockElement || document.pointerLockElement || false;
+			if (!controlEnabled) 
+			{
+				camera.detachControl(canvas);
+				islocked = false;
+			} 
+			else 
+			{
+				camera.attachControl(canvas);
+				islocked = true;
+			}
+		};
+		
+		
+        scene.beginAnimation(sol_ascenseur, 0, 200, true);  
+        sol_ascenseur.checkCollisions = true;
+
+		return scene;	 
+};
+        
+        var scene = createScene();
+        
+
+
+	// Callback de sélection par click souris
+	// ======================================
+	window.addEventListener("click",function(event){
+			var pickResult = scene.pick(event.clientX, event.clientY) ;
+			if(pickResult.hit)
+			{
+				/*var name_obj = new String(pickResult.pickedMesh.name);
+				console.log(name_obj);*/
+				
+				console.log(pickResult.pickedMesh.name);
+			}
+			
+			if(pickResult.pickedMesh.name == sphereNav1.name)
+			{
+				console.log('holaaaaa');
+							
+				camera.position.x = sphereNav1.position.x - 4; 
+				//camera.position.y = sphereNav1.position.y - 4;
+				camera.position.y = 1;
+				camera.position.z = sphereNav1.position.z - 4;
+				/*camera.setTarget(BABYLON.Vector3( sphereNav1.position.x,
+													sphereNav1.position.y,
+													sphereNav1.position.z));*/
+			}
+}) ;
+				
+	window.addEventListener("keypress", function(e){
+    if (e.key == "e" && canDisplay)
+        fenetreModal.style.display = "block";
+	});	
+	
+	/*Mettre en evidence 2 tableaux de la salle quand on est dans cette salle*/
+		var light1 = new BABYLON.SpotLight("Spot1", new BABYLON.Vector3(-10, 4.5, 9.5),
+												 new BABYLON.Vector3(1, 0, 0), 1.3, 2, scene);
+		light1.includedOnlyMeshes = [wall_room1];
+		light1.diffuse = new BABYLON.Color3(1, 1, 0);
+		light1.specular = new BABYLON.Color3(0.5, 0.7, 0);
+		light1.intensity = 0;
+		
+		var light2 = new BABYLON.SpotLight("Spot1", new BABYLON.Vector3(0, 4.5, 9.5),
+												 new BABYLON.Vector3(1, 0, 0), 1.3, 0.2, scene);
+		light2.includedOnlyMeshes = [wall_room2];
+		light2.diffuse = new BABYLON.Color3(1, 1, 0);
+		light2.specular = new BABYLON.Color3(0.5, 0.7, 0);
+		light2.intensity = 0;
+		
+		var light3 = new BABYLON.SpotLight("Spot1", new BABYLON.Vector3(10, 4.5, 9.5),
+												 new BABYLON.Vector3(1, 0, 0), 1.3, 0.2, scene);
+		light3.diffuse = new BABYLON.Color3(1, 1, 0);
+		light3.specular = new BABYLON.Color3(0.5, 0.7, 0);
+		light3.intensity = 0;
+		
+
+		
+	scene.registerBeforeRender(function () {
+
+		
+        temps += 1  ; 
+		//point.z = 12*Math.cos(0.003*temps) ; 
+		//point.position = camera.position;
+		point.x = camera.position.x ; 
+		point.y = camera.position.y ;
+		point.z = camera.position.z ; 
+		//console.log(point) ; 
+		var text = document.getElementById("mon-texte");
+		if( sphereModal1.intersectsPoint(point) ) {
+			console.log('room1');
+			light1.intensity = 1;
+			light2.intensity = 0;
+			light3.intensity = 0;
+		}
+		
+		else if( sphereModal2.intersectsPoint(point) ) {
+			console.log('room2');
+			light1.intensity = 0;
+			light2.intensity = 1;
+			light3.intensity = 0;		
+		}
+		
+		else if( sphereModal3.intersectsPoint(point) ) {
+			console.log('room3');
+			light1.intensity = 0;
+			light2.intensity = 0;
+			light3.intensity = 1;		
+		}
+		else {
+			light1.intensity = 0;
+			light2.intensity = 0;
+			light3.intensity = 0;	
+			if (sphereModalDescri1.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Anicenne Manutention de Ouessant";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri2.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : Siège du Gouvernement, Bas Gauche : Chapelle, Bas Droite : Phare de Nividic ";;
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri3.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : Man001 et Bas : Berthe ";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri4.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Croix de Proella";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri5.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : Creche, Bas Gauche : Costume de mariée, Bas Droite : Costume de mariée";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri6.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : tableau 3 ,Bas : tableau 2";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri7.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="tableau 1";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri8.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : MAN002 ,Bas Gauche: tableau 4, Bas Droite : plage";
+				text.innerText=title_Tab;
+			}
+			else if (sphereModalDescri9.intersectsPoint(point)){
+				canDisplay = true;
+				title_Tab="Haut : Berthe ,Bas : tableau 5";
+				text.innerText=title_Tab;
+			}
+
+		}
+    });			
+	
+	
+
+	// Callback d'affichage
+	// ====================
+        engine.runRenderLoop(function () {
+            
+            scene.render();
+
+        });
+
+        // Callback de retaillage
+	// ======================
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

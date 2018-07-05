@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><title></title><meta charset="utf-8"><link rel="stylesheet" href="physics_files/font-awesome.css"><link rel="stylesheet" href="physics_files/flexboxgrid.css" type="text/css"><link href="physics_files/css_003.css" rel="stylesheet" type="text/css"><link href="physics_files/css.css" rel="stylesheet" type="text/css"><link href="physics_files/css_002.css" rel="stylesheet" type="text/css"><link rel="stylesheet" href="physics_files/main.css"><link rel="stylesheet" href="physics_files/zenburn.css"><script src="physics_files/piwik.js" defer="defer" async="" type="text/javascript"></script><script src="physics_files/highlight.js"></script><script>hljs.initHighlightingOnLoad();
+</script></head><body><div class="wrapper"><!--Menu--><div class="menu"><div class="menu-content"><div class="name">Julian</div><div class="name">"Temechon"</div><div class="items"><div class="item"><a href="http://www.pixelcodr.com/projects.html"><i class="fa fa-gamepad"></i>Projects</a></div><div class="item"><a href="http://www.pixelcodr.com/tutorials.html"><i class="fa fa-graduation-cap"></i>Babylon.js tutorials</a></div><div class="item"><a href="https://github.com/Temechon" target="_new"><i class="fa fa-github"></i>Github</a></div><div class="item"><a href="http://www.pixelcodr.com/aboutme.html"><i class="fa fa-user"></i>About me</a></div><div class="item"><a href="http://learningbabylonjs.com/" target="_new"><i class="fa fa-rocket"></i>Learning Babylon.js</a></div></div></div></div><!-- Content--><div class="right-space"><div class="content"><h1>Working with physics</h1><div class="tutorial">
+<h2>Working with physics</h2>
+
+<div style="text-align:center; padding-top:40px; padding-bottom: 40px">
+    <img src="physics_files/babylonjs.png" style="max-height:75px;">
+</div>
+<p>
+
+</p>
+
+<h2>Objective</h2>
+
+    <p>
+        This tutorial will explain how to manipulate a mesh with the default physics plugin in Babylonjs : Oimo.js.<br>
+        We will not see the global structure of a game, as it has 
+already been detailed in a previous tutorial. Thus, I strongly recomend 
+to
+        look at the source code of the prototype while reading this 
+article.<br>
+        We will talk about:
+        </p><ul>
+        <li>Oimo js</li>
+        <li>Linear and angular velocity</li>
+        <li>Friction and restitution</li>
+        </ul>
+        As usual, if you have any questions, my Twitter is at the bottom of the page. Let's start !
+    <p></p>
+<div class=" centerImg centerImgBig">
+    <a href="http://www.pixelcodr.com/tutos/physics/game/index.html">
+        <img src="physics_files/final.png">
+    </a>
+</div>
+
+    <h2>The scene creation</h2>
+
+    <p>
+        The scene is created in the method <code>GameState._initScene</code>. The only interesting point is the ground creation:
+    </p>
+<pre><code class="js hljs javascript">
+<span class="hljs-keyword">var</span> ground = BABYLON.Mesh.CreateGround(<span class="hljs-string">"ground"</span>, <span class="hljs-number">500</span>, <span class="hljs-number">500</span>, <span class="hljs-number">1</span>, scene);
+ground.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, {mass:<span class="hljs-number">0</span>, restitution:<span class="hljs-number">0.5</span>, friction:<span class="hljs-number">0.1</span>});
+
+</code></pre>
+
+    <p>
+        You can see a physics state has been assigned to the ground, with 2 parameters:
+        </p><ul>
+            <li>BABYLON.PhysicsEngine.BoxImpostor</li>
+            <li>{mass:0, restitution:0.5, friction:0.1}</li>
+        </ul>
+        The first parameter is the kind of impostor you will use for the
+ ground, and the second one represents the impostor parameters.
+    <p></p>
+
+    <h2>Impostors ?</h2>
+    <p>
+        An impostor is a simple shape used to approximate heavy physics calculations, used primarly for perfomances reasons.
+        All collisions detections will then be performed on the impostor, and not on the original mesh. Awesome, right ? <br>
+        However, it won't be possible to have pixel perfect collisions.
+    </p>
+
+    <p>
+        Each impostor is set a physics material, with 3 attributes :
+        </p><ul>
+            <li>A mass</li>
+            <li>A friction coefficient</li>
+            <li>A restitution coefficient</li>
+        </ul>
+        <b>The mass</b> is self-explanatory: it's the object mass. If 
+set to 0, the object won't be affected by the world gravity, and thus 
+won't move at all.
+The default value is 0.<br>
+        <b>The friction coefficient</b> represents the resistance when two objects are sliding against each other. 0 means no friction, and 1 means a lot of friction.
+The default value is 0.2.<br>
+        <b>The restitution coefficient</b> represents the bouncyness of the material. It's a value between 0 and 1, with 0 no boucyness at all.
+The default value is 0.2.<br><br>
+        Be careful ! If you use a value to 0 for friction and 
+restitution, Oimo will set you the default value instead. You will have 
+to use very small values, like 0.0001 for example.
+    <p></p>
+    <p>
+        In Oimo, there are only 3 kind of impostors:
+        </p><ul>
+            <li>BoxImpostor</li>
+            <li>PlaneImpostor</li>
+            <li>SphereImpostor</li>
+        </ul>
+    <p></p>
+
+    <h2>The player</h2>
+
+    <p>
+        The player will be represented by a box that can be moved on the ground with the ZQSD/WASD keys.<br>
+        Each key press will generate an impulsion to move the box.
+    </p>
+<pre><code class="js hljs javascript">
+<span class="hljs-keyword">this</span>.box = BABYLON.Mesh.CreateBox(<span class="hljs-string">"player"</span>, <span class="hljs-number">5</span>, <span class="hljs-keyword">this</span>.scene);
+<span class="hljs-keyword">this</span>.box.position.y = <span class="hljs-number">2</span>;
+<span class="hljs-keyword">this</span>.body = <span class="hljs-keyword">this</span>.box.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, {mass:<span class="hljs-number">1</span>, friction:<span class="hljs-number">0.001</span>, restitution:<span class="hljs-number">1.5</span>});
+</code></pre>
+
+    <p>
+        The player box has no friction, and a big restitution factor. You can see I store the return of <code>setPhysicsState</code>
+ in a variable.
+        This variable is an instance of a OIMO.Body, and contains a link
+ to a OIMO.RigidBody.This will be useful to update the body linear 
+velocity and angular velocity.
+    </p>
+
+<pre><code class="js hljs javascript">
+handleKeyDown : <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">keycode</span>) </span>{
+    <span class="hljs-keyword">switch</span> (keycode) {
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.ZQSD.TOP :
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.QWSD.TOP :
+        <span class="hljs-keyword">this</span>._chooseDirection(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">break</span>;
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.ZQSD.BOT :
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.QWSD.BOT :
+        <span class="hljs-keyword">this</span>._chooseDirection(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">break</span>;
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.ZQSD.LEFT:
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.QWSD.LEFT :
+        <span class="hljs-keyword">this</span>._chooseDirection(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">break</span>;
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.ZQSD.RIGHT:
+    <span class="hljs-keyword">case</span> Player.DIRECTIONS.QWSD.RIGHT :
+        <span class="hljs-keyword">this</span>._chooseDirection(<span class="hljs-number">3</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">break</span>;
+    }
+}
+
+</code></pre>
+<p>
+    With the method <code>handleKeyDown</code>, a boolean is set to true if a key is pressed, and set to false is the key is released.<br>
+    The method <code>move</code> will then use these values to move the box, by applying impulsions with a given force.
+</p>
+<pre><code class="js hljs javascript">
+move : <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> s = <span class="hljs-number">5</span>;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mvtDirection[<span class="hljs-number">0</span>] != <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">this</span>.box.applyImpulse(<span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,s), <span class="hljs-keyword">this</span>.box.position);
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mvtDirection[<span class="hljs-number">1</span>] != <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">this</span>.box.applyImpulse(<span class="hljs-keyword">new</span> BABYLON.Vector3(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,-s), <span class="hljs-keyword">this</span>.box.position);
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mvtDirection[<span class="hljs-number">2</span>] != <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">this</span>.box.applyImpulse(<span class="hljs-keyword">new</span> BABYLON.Vector3(-s,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>), <span class="hljs-keyword">this</span>.box.position);
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mvtDirection[<span class="hljs-number">3</span>] != <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">this</span>.box.applyImpulse(<span class="hljs-keyword">new</span> BABYLON.Vector3(s,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>), <span class="hljs-keyword">this</span>.box.position);
+    }
+    <span class="hljs-keyword">this</span>.body.body.linearVelocity.scaleEqual(<span class="hljs-number">0.92</span>);
+    <span class="hljs-keyword">this</span>.body.body.angularVelocity.scaleEqual(<span class="hljs-number">0</span>);
+}
+</code></pre>
+
+    <p>
+        You can see the method <code>box.applyImpulse</code> is used each time we want the box to move. This method takes 2 parameters:
+        the force to be applied, and the contact point.<br>
+        But the last two lines are interesting:
+    </p>
+<pre><code class="js hljs javascript">
+<span class="hljs-keyword">this</span>.body.body.linearVelocity.scaleEqual(<span class="hljs-number">0.92</span>);
+<span class="hljs-keyword">this</span>.body.body.angularVelocity.scaleEqual(<span class="hljs-number">0</span>);
+
+</code></pre>
+<p>
+    <code>linearVelocity</code> is an attribute of the OIMO.RigidBody class from OIMO.
+    This vector represents the current speed of the box, and is an instance of
+    the class <code>OIMO.Vec3</code>. This class has one method called <code>scaledEqual</code>, that multiply each coordinate of
+    the vector with the given scalar.<br>
+    Here, we don't want the player to rotate, so we set the angular velocity to 0. <br>
+    The linear velocity is then scaled by 0.92, to create a smooth 
+movement of the player on the ground. Try different values for this, and
+ see what happens :)
+</p>
+<h2>Conclusion</h2>
+<p>
+    And you're done with a working prototype! Now, if you add a weapon 
+that shoots bullets, a gamepad handler, several player on the same 
+ground, you will have
+    a nice game. Maybe the next big game of 2015 ! (If so, just mention 
+my name in the credits, and I will love you forever;) )
+    <br><a href="http://www.pixelcodr.com/tutos/physics/game/index.html">Click here to run the physics demo</a>,
+    or <span class="purple">click on the image below to get the final code source</span> if you want to take a look at it.<br>
+</p><div class="centerImg" style="padding:0">
+    <a href="http://www.pixelcodr.com/tutos/physics/zip/physics.zip">
+        <img class="shadow" src="physics_files/games.png" style="width:150px">
+    </a>
+</div>
+<p></p>
+<hr>
+
+<p>
+    If you have any questions about it, feel free to email me at <span class="purple">temechon <code>[at]</code> pixelcodr <code>[dot]</code> com</span>, or leave a comment below,
+    I'll answer quickly. <br>You can also <a href="http://eepurl.com/ZlBTX">subscribe to the newsletter</a> and you will receive an email when a new tutorial is out. No spam, and unsubscribe whenever you want.
+    <br><br>
+    Cheers !
+</p>
+</div></div></div></div><!-- Piwik--><script type="text/javascript">var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+var u="//pixelcodr.com/analytics/";
+_paq.push(['setTrackerUrl', u+'piwik.php']);
+_paq.push(['setSiteId', 1]);
+var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+})();</script><noscript><p><img src="//pixelcodr.com/analytics/piwik.php?idsite=1" style="border:0;" alt=""></p></noscript><!-- End Piwik Code--></body></html>

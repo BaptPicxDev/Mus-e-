@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="https://www.davrous.com/xmlrpc.php">
+
+<title>Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js – David Rousset</title>
+<link rel="dns-prefetch" href="https://s0.wp.com/">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+<link rel="dns-prefetch" href="https://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="David Rousset » Feed" href="https://www.davrous.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="David Rousset » Comments Feed" href="https://www.davrous.com/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="David Rousset » Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js Comments Feed" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/feed/">
+		<script src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/analytics.js" async=""></script><script type="text/javascript">window._wpemojiSettings={"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.davrous.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7"}};!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);</script><script defer="defer" type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/wp-emoji-release.js"></script>
+		<style type="text/css">img.wp-smiley,img.emoji{display:inline!important;border:none!important;box-shadow:none!important;height:1em!important;width:1em!important;margin:0 .07em!important;vertical-align:-.1em!important;background:none!important;padding:0!important}</style>
+<link rel="stylesheet" id="oblique-bootstrap-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/A_004.css" type="text/css" media="all">
+<link rel="stylesheet" id="oblique-body-fonts-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/css_002.css" type="text/css" media="all">
+<link rel="stylesheet" id="oblique-headings-fonts-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/css.css" type="text/css" media="all">
+<link rel="stylesheet" id="oblique-style-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/A_003.css" type="text/css" media="all">
+<style id="oblique-style-inline-css" type="text/css">.site-branding{padding:150px 0}@media only screen and (max-width:1024px){.site-branding{padding:100px 0}}.site-logo{max-width:200px}.svg-block{fill:#1c1c1c}.footer-svg.svg-block{fill:#17191b!important}.site-footer{background-color:#17191b}body{color:#50545c}.site-title a,.site-title a:hover{color:#f9f9f9}.site-description{color:#fff}.entry-title,.entry-title a{color:#000}.entry-meta,.entry-meta a,.entry-footer,.entry-footer a{color:#9d9d9d}.widget-area{background-color:#17191b}.widget-area,.widget-area a{color:#f9f9f9}.social-navigation li a{color:#fff}</style>
+<link rel="stylesheet" id="oblique-font-awesome-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/A_005.css" type="text/css" media="all">
+<link rel="stylesheet" id="social-logos-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/social-logos.css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/A_002.css" type="text/css" media="all">
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/jquery.js"></script>
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/jquery-migrate.js"></script>
+<script type="text/javascript">var related_posts_js_options={"post_heading":"h4"};</script>
+<script src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/plugins_jetpack_modules_related-posts_related-posts.js"></script><script>eval(mod_pagespeed_LXR2$C6BtQ);</script>
+<script>eval(mod_pagespeed_v3GcnPpoE8);</script>
+<script>eval(mod_pagespeed_Cvrb8vswKl);</script>
+<link rel="https://api.w.org/" href="https://www.davrous.com/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.davrous.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.davrous.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Enhance your JavaScript debugging life using IE11, Chrome, Opera &amp; Firefox source map support" href="https://www.davrous.com/2014/08/22/enhance-your-javascript-debugging-life-using-ie11-chrome-opera-firefox-source-map-support/">
+<link rel="next" title="Réalisation d’une configuration PC haut de gamme pour jouer 4K : ce qu’il faut savoir et mes choix" href="https://www.davrous.com/2014/11/21/ralisation-dune-configuration-pc-haut-de-gamme-pour-jouer-4k-ce-quil-faut-savoir-et-mes-choix/">
+<meta name="generator" content="WordPress 4.7">
+<link rel="canonical" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/">
+<link rel="shortlink" href="https://wp.me/p7rkzQ-fG">
+<link rel="alternate" type="application/json+oembed" href="https://www.davrous.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.davrous.com%2F2014%2F11%2F18%2Funderstanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://www.davrous.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.davrous.com%2F2014%2F11%2F18%2Funderstanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js%2F&amp;format=xml">
+
+		<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-76391475-1','auto');ga('send','pageview');</script>
+
+		
+<link rel="dns-prefetch" href="https://v0.wordpress.com/">
+<style type="text/css">img#wpstats{display:none}</style><!--[if lt IE 9]>
+<script src="https://www.davrous.com/wp-content/themes/oblique/js/html5shiv.js"></script>
+<![endif]-->
+		<style type="text/css">.recentcomments a{display:inline!important;padding:0!important;margin:0!important}</style>
+				<style type="text/css">.site-header{background:url(https://www.davrous.com/wp-content/uploads/2016/04/xcropped-davroushololenslight.jpg.pagespeed.ic.747moUnCYl.jpg) no-repeat;background-position:center top!important;background-size:cover}</style>
+		
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js">
+<meta property="og:url" content="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/">
+<meta property="og:description" content="Through this tutorial, we’re going to learn the basics of collisions, physics &amp; bounding boxes by playing with the WebGL Babylon.js engine and a physics engine companion named oimo.js. Here’s t…">
+<meta property="article:published_time" content="2014-11-18T10:21:51+00:00">
+<meta property="article:modified_time" content="2016-04-21T10:10:29+00:00">
+<meta property="og:site_name" content="David Rousset">
+<meta property="og:image" content="https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs.png">
+<meta property="og:image:width" content="800">
+<meta property="og:image:height" content="500">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:image" content="https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs.png?w=640">
+<meta name="twitter:card" content="summary_large_image">
+		<style type="text/css" id="wp-custom-css"></style>
+	<!-- multilingual website powered with xili-language v. 2.21.2 - WP plugin of dev.xiligroup.com -->
+<link rel="icon" href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAgACADASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAABQYHCAn/xAApEAABAwIGAgEEAwAAAAAAAAABAgMRBAUABhIhMVETQQdhcYGRFDPB/8QAFwEBAQEBAAAAAAAAAAAAAAAABAYABf/EACERAAICAQIHAAAAAAAAAAAAAAECAAMREjEEBQYTIVFh/9oADAMBAAIRAxEAPwDO9kcqzrNQxXOwdKShOtGroknb8dYZ6o1tSy2w++8401/WhSiQn7DACw5mbtVqFK1SKcUtY8oUsaVp3IIMSCNh7BHWHC0V9purIVT1LSXIlTSyApPcg8/cbYOgJJLCKfQAApz7gqnt2tKXEqbcSFBKkpVJSTMAj1MH9Y0n8V/FuX7JYKK836jFzule0h5tlwHxsIMFIAHJIgmQR6jkmAKrbaxVNssPsPvuOBAQhxIEk7kqJgQOzjYVM43esp2+roHCUtsIGtlyQCEgECPYgnnf84nOpeKtpqVayQDuRF8voVny+05vtOOSAmThkyllmqzC+6lL7FOluC4VyTB9gAb8djAGib8qgkupbHav8xQsvintNGpdC+45UqADhno+gNoHW53+mKVnCnyJza11R4ybl+12AIS2nzrBKi64BqBIAMbbCBwMVzJl8Va3lCkeIbcglsmUEjscT9ecQFvN1OyR/JUkJO2pPP6w2ZazBZKpLrr18paXQEFsO1CG9ckzGogkCBwPeM/ZKZdQV+xVJbWAN5//2Q==" sizes="32x32">
+<link rel="icon" href="https://www.davrous.com/wp-content/uploads/2016/04/xcropped-header-1-192x192.jpg.pagespeed.ic._mbqxaM3Ou.jpg" sizes="192x192">
+<link rel="apple-touch-icon-precomposed" href="https://www.davrous.com/wp-content/uploads/2016/04/xcropped-header-1-180x180.jpg.pagespeed.ic.xAEFC62WV7.jpg">
+<meta name="msapplication-TileImage" content="https://www.davrous.com/wp-content/uploads/2016/04/cropped-header-1-270x270.jpg">
+	<link type="text/css" rel="stylesheet" href="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/A.css">
+	
+<style id="fit-vids-style">.fluid-width-video-wrapper{width:100%;position:relative;padding:0;}.fluid-width-video-wrapper iframe,.fluid-width-video-wrapper object,.fluid-width-video-wrapper embed {position:absolute;top:0;left:0;width:100%;height:100%;}</style></head>
+
+<body class="post-template-default single single-post postid-972 single-format-standard group-blog">
+<div id="page" class="hfeed site">
+	<a class="skip-link screen-reader-text" href="#content">Skip to content</a>
+
+		<div class="sidebar-toggle">
+			<i class="fa fa-bars"></i>
+		</div>
+
+	<div class="top-bar container">
+					<nav class="social-navigation clearfix">
+				<div class="menu-socialnetworks-container"><ul id="menu-socialnetworks" class="menu clearfix"><li id="menu-item-3288" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3288"><a target="_blank" title="About me" href="https://davrous.com/about"><span class="screen-reader-text">About</span></a></li>
+<li id="menu-item-7" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-7"><a title="Twitter" target="_blank" href="http://twitter.com/davrous"><span class="screen-reader-text">Twitter</span></a></li>
+<li id="menu-item-8" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-8"><a title="Facebook" target="_blank" href="http://facebook.com/davrous"><span class="screen-reader-text">facebook</span></a></li>
+<li id="menu-item-9" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-9"><a title="LinkedIn" target="_blank" href="https://linkedin.com/in/davrous"><span class="screen-reader-text">linkedin</span></a></li>
+<li id="menu-item-10" class="SoundCloudIcon menu-item menu-item-type-custom menu-item-object-custom menu-item-10"><a title="My Music" target="_blank" href="https://soundcloud.com/david-rousset"><span class="screen-reader-text">soundcloud</span></a></li>
+<li id="menu-item-3274" class="rssfeed menu-item menu-item-type-custom menu-item-object-custom menu-item-3274"><a title="RSS Feed" target="_blank" href="https://www.davrous.com/feed/"><span class="screen-reader-text">RSS</span></a></li>
+</ul></div>			</nav>
+					</div>
+
+	<div class="svg-container nav-svg svg-block">
+		
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1950 150">
+		  <g transform="translate(0,-902.36218)"></g>
+		  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+		  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+		  <path d="M 0,150 0,0 1925,0"></path>
+		</svg>
+		</div>
+	<header style="background-position: 50% -133px;" id="masthead" class="site-header" role="banner"><canvas height="526" width="1187" style="width: 1187px; height: 525.495px; position: absolute; overflow: hidden; top: 0px; left: 0px; z-index: -2; transform: translateX(0px);" id="babylonjsBanner"></canvas>
+		<div class="overlay"></div>
+		<div class="container">
+			<div class="site-branding">
+	        				<h1 class="site-title"><a href="https://www.davrous.com/" rel="home">David Rousset</a></h1>
+				<h2 class="site-description">Developer. Creative Geek. Composer.</h2>
+	        			</div><!-- .site-branding -->
+		</div>
+		<div class="svg-container header-svg svg-block">
+			
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1890 150">
+			<g transform="translate(0,-902.36218)"></g>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 1925,0 0,150 -1925,0"></path>
+		</svg>
+			</div>		
+	</header><!-- #masthead -->
+
+	<div id="content" class="site-content">
+		<div class="container content-wrapper">
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main" role="main">
+
+		
+				
+<div class="svg-container single-post-svg svg-block">
+	
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1890 150">
+			<g transform="translate(0,-902.36218)"></g>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 1925,0 0,150 -1925,0"></path>
+		</svg>
+	</div>
+<article id="post-972" class="post-972 post type-post status-publish format-standard has-post-thumbnail hentry category-english category-technical-article category-tutorial">
+
+	<header class="entry-header">
+		<h1 class="entry-title">Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js</h1>
+		<div class="entry-meta">
+			<span class="posted-on"><a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/" rel="bookmark"><time class="entry-date published" datetime="2014-11-18T10:21:51+00:00">November 18, 2014</time><time class="updated" datetime="2016-04-21T10:10:29+00:00">April 21, 2016</time></a></span><span class="byline"> <span class="author vcard"><a class="url fn n" href="https://www.davrous.com/author/davrous/">David Rousset</a></span></span><span class="cat-links"><a href="https://www.davrous.com/category/english/?lang=en_us" title="View all posts in English" rel="category tag">English</a>, <a href="https://www.davrous.com/category/technical-article/?lang=en_us" title="View all posts in Technical article" rel="category tag">Technical article</a>, <a href="https://www.davrous.com/category/tutorial/?lang=en_us" title="View all posts in Tutorial" rel="category tag">Tutorial</a></span>		</div><!-- .entry-meta -->
+	</header><!-- .entry-header -->
+
+			<div class="single-thumb">
+			<script data-pagespeed-no-defer="">(function(){var g=this;function h(b,d){var a=b.split("."),c=g;a[0]in c||!c.execScript||c.execScript("var "+a[0]);for(var e;a.length&&(e=a.shift());)a.length||void 0===d?c[e]?c=c[e]:c=c[e]={}:c[e]=d};function l(b){var d=b.length;if(0<d){for(var a=Array(d),c=0;c<d;c++)a[c]=b[c];return a}return[]};function m(b){var d=window;if(d.addEventListener)d.addEventListener("load",b,!1);else if(d.attachEvent)d.attachEvent("onload",b);else{var a=d.onload;d.onload=function(){b.call(this);a&&a.call(this)}}};var n;function p(b,d,a,c,e){this.h=b;this.j=d;this.l=a;this.f=e;this.g={height:window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight,width:window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth};this.i=c;this.b={};this.a=[];this.c={}}function q(b,d){var a,c,e=d.getAttribute("data-pagespeed-url-hash");if(a=e&&!(e in b.c))if(0>=d.offsetWidth&&0>=d.offsetHeight)a=!1;else{c=d.getBoundingClientRect();var f=document.body;a=c.top+("pageYOffset"in window?window.pageYOffset:(document.documentElement||f.parentNode||f).scrollTop);c=c.left+("pageXOffset"in window?window.pageXOffset:(document.documentElement||f.parentNode||f).scrollLeft);f=a.toString()+","+c;b.b.hasOwnProperty(f)?a=!1:(b.b[f]=!0,a=a<=b.g.height&&c<=b.g.width)}a&&(b.a.push(e),b.c[e]=!0)}p.prototype.checkImageForCriticality=function(b){b.getBoundingClientRect&&q(this,b)};h("pagespeed.CriticalImages.checkImageForCriticality",function(b){n.checkImageForCriticality(b)});h("pagespeed.CriticalImages.checkCriticalImages",function(){r(n)});function r(b){b.b={};for(var d=["IMG","INPUT"],a=[],c=0;c<d.length;++c)a=a.concat(l(document.getElementsByTagName(d[c])));if(0!=a.length&&a[0].getBoundingClientRect){for(c=0;d=a[c];++c)q(b,d);a="oh="+b.l;b.f&&(a+="&n="+b.f);if(d=0!=b.a.length)for(a+="&ci="+encodeURIComponent(b.a[0]),c=1;c<b.a.length;++c){var e=","+encodeURIComponent(b.a[c]);131072>=a.length+e.length&&(a+=e)}b.i&&(e="&rd="+encodeURIComponent(JSON.stringify(t())),131072>=a.length+e.length&&(a+=e),d=!0);u=a;if(d){c=b.h;b=b.j;var f;if(window.XMLHttpRequest)f=new XMLHttpRequest;else if(window.ActiveXObject)try{f=new ActiveXObject("Msxml2.XMLHTTP")}catch(k){try{f=new ActiveXObject("Microsoft.XMLHTTP")}catch(v){}}f&&(f.open("POST",c+(-1==c.indexOf("?")?"?":"&")+"url="+encodeURIComponent(b)),f.setRequestHeader("Content-Type","application/x-www-form-urlencoded"),f.send(a))}}}function t(){var b={},d=document.getElementsByTagName("IMG");if(0==d.length)return{};var a=d[0];if(!("naturalWidth"in a&&"naturalHeight"in a))return{};for(var c=0;a=d[c];++c){var e=a.getAttribute("data-pagespeed-url-hash");e&&(!(e in b)&&0<a.width&&0<a.height&&0<a.naturalWidth&&0<a.naturalHeight||e in b&&a.width>=b[e].o&&a.height>=b[e].m)&&(b[e]={rw:a.width,rh:a.height,ow:a.naturalWidth,oh:a.naturalHeight})}return b}var u="";h("pagespeed.CriticalImages.getBeaconData",function(){return u});h("pagespeed.CriticalImages.Run",function(b,d,a,c,e,f){var k=new p(b,d,a,e,f);n=k;c&&m(function(){window.setTimeout(function(){r(k)},0)})});})();pagespeed.CriticalImages.Run('/ngx_pagespeed_beacon','https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/','AGKDfx0dbO',true,false,'qzrdVnJRhAA');</script><img src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/xphysicsBabylonJs.jpg" class="attachment-oblique-single-thumb size-oblique-single-thumb wp-post-image" alt="" srcset="https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs.png 800w, https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs-300x188.png 300w, https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs-768x480.png 768w, https://www.davrous.com/wp-content/uploads/2014/11/physicsBabylonJs-370x231.png 370w" sizes="(max-width: 800px) 100vw, 800px" data-pagespeed-url-hash="585462892" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="500" width="800">		</div>	
+			
+
+	<div class="entry-content">
+		<p>Through this tutorial, we’re going to learn the basics of <strong>collisions</strong>, <strong>physics</strong> &amp; bounding boxes by playing with the WebGL <strong>Babylon.js</strong> engine and a <strong>physics engine</strong> companion named <strong>oimo.js</strong>.</p>
+<p>Here’s the demo we’re going to build together: <a href="http://yoda.blob.core.windows.net/wwwbabylonjs/Scenes/espilitphysics/index.html" target="_blank">Babylon.js Espilit Physics demo with Oimo.js</a></p>
+<p>You can launch it in a <strong>WebGL compatible browser</strong> like IE11, Firefox, Chrome, Opera or Safari 8. Then, move inside the scene like in an-FPS game. <strong>Press the “<i>s</i>” key</strong> to launch some spheres/balls and the <strong>“<i>b</i>” key</strong> to launch some boxes. Using your mouse, you can click on one of the spheres or boxes to apply some impulse force on it also.</p>
+<h2>Understanding collisions</h2>
+<p>Looking at the Wikipedia <a href="http://en.wikipedia.org/wiki/Collision_detection" target="_blank">Collision detection</a> definition, we can read that: “<b><i>Collision detection</i></b><i>
+ typically refers to the computational problem of detecting the 
+intersection of two or more objects. While the topic is most often 
+associated with its use in <a href="http://en.wikipedia.org/wiki/Video_game">video games</a> and other <a href="http://en.wikipedia.org/wiki/Computer_simulations">physical simulations</a>, it also has applications in <a href="http://en.wikipedia.org/wiki/Robotics">robotics</a>.
+ In addition to determining whether two objects have collided, collision
+ detection systems may also calculate time of impact (TOI), and report a
+ contact manifold (the set of intersecting points).</i><i><sup><a href="http://en.wikipedia.org/wiki/Collision_detection#cite_note-1">[1]</a></sup></i><i> <a href="http://en.wikipedia.org/wiki/Collision_response">Collision response</a> deals with simulating what happens when a collision is detected (see <a href="http://en.wikipedia.org/wiki/Physics_engine">physics engine</a>, <a href="http://en.wikipedia.org/wiki/Ragdoll_physics">ragdoll physics</a>). Solving collision detection problems requires extensive use of concepts from <a href="http://en.wikipedia.org/wiki/Linear_algebra">linear algebra</a> and <a href="http://en.wikipedia.org/wiki/Computational_geometry">computational geometry</a>.</i>”</p>
+<p>Let’s project that into this cool 3D scene we have on our website: <a href="http://www.babylonjs.com/index.html?ESPILIT" target="_blank">http://www.babylonjs.com/index.html?ESPILIT</a> that will act as our starting base for this tutorial.</p>
+<p>You can move into this great museum without going through the floor, 
+you cannot go through the walls neither. At last, as you’re supposed to 
+be a human, you’re stuck on the floor. You can’t fly. We’re then 
+simulating gravity. All of that seems pretty obvious but requires a 
+bunch of computation to simulate that in a 3D virtual world. The first 
+question we need to resolve when we think about collisions detection is 
+how complex it should be? Indeed, testing if 2 complex meshes are 
+colliding could cost a lot of CPU, even more with a JavaScript engine 
+where it’s complex to offload that on something else that the UI thread.</p>
+<p>To better understand how we’re managing this complexity, navigate into the Espilit museum near this desk:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/5367.image_494AC204.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="image" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/6242.bin" alt="image" data-pagespeed-url-hash="277688295" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="287" width="640"></a></p>
+<p>You’re blocked by the table even if there seem to be some space 
+available on the right. Is it a bug in our collision algorithm? No, it’s
+ not (babylon.js is free of bugs! ;-)). It’s because Michel Rousseau, 
+the 3D artist who has built this scene, has done this choice. To 
+simplify the collision detection, he has used a specific collider.</p>
+<h3>What’s a collider?</h3>
+<p>Rather than testing the collisions against the complete detailed 
+meshes, you can put them into simple invisible geometries. Those 
+colliders will act as the mesh representation and will be used by the 
+collision engine instead. Most of the time, you won’t see the 
+differences but it will allow us to use much less CPU as the math behind
+ that is much simpler to compute.</p>
+<p>Every engine supports at least 2 types of colliders: the <strong>bounding box</strong> and the <strong>bounding sphere</strong>. You’ll better understand by looking at this picture:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/7356.bounding20box_7D39F45B.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="bounding%20box" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/1423.bin" alt="bounding%20box" data-pagespeed-url-hash="1358888752" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="248" width="300"></a></p>
+<p><span style="font-size: xx-small;">Extracted from: </span><a href="http://www.tcs.fudan.edu.cn/rudolf/Courses/Algorithms/Alg_ss_07w/Webprojects/Chen_hull/applications.htm" target="_blank"><span style="font-size: xx-small;">Computer Visualization, Ray Tracing, Video Games, Replacement of Bounding Boxes</span></a></p>
+<p>This beautiful yellow deck is the mesh to be displayed. Rather than 
+testing the collisions against every of it faces, we can try to insert 
+it into the best bounding geometry. In this case, a box seems a better 
+choice than a sphere to act as the mesh impostor. But the choice really 
+depends of the mesh itself.</p>
+<p>Let’s go back to the Espilit scene and let’s display the invisible bounding element in a semitransparent red color:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/5482.image_4E76CC6A.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="image" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/5488.bin" alt="image" data-pagespeed-url-hash="1377385621" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="363" width="640"></a></p>
+<p>You can now understand why you can’t move by the right of the desk. 
+It’s because you’re colliding (well, the Babylon.js camera is colliding)
+ with this box. If you’d like to do so, simply change its size by 
+lowering the width to perfectly fit the width of the desk.</p>
+<p><b><u>Note:</u></b> if you’d like to start learning Babylon.js, you can follow our <strong>Free MVA training course</strong>. For instance, you can jump directly to the “<a href="http://www.microsoftvirtualacademy.com/training-courses/introduction-to-webgl-3d-with-html5-and-babylon-js?m=11719&amp;ct=34560" target="_blank">Introduction to WebGL 3D with HTML5 and Babylon.js – Using Babylon.js for Beginners</a>”
+ where we’re covering this collision part of Babylon.js. You can also 
+have a look at the code inside our interactive playground tool: <a href="http://www.babylonjs-playground.com/index.html?9" target="_blank">Babylon.js playground – Collisions sample</a></p>
+<p>Based on the complexity of the collision or physics engine, there are other types of colliders available: the <strong>capsule</strong> and the <strong>mesh</strong> for instance.</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/0363.colliders_2C4903A8.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="colliders" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/4606.bin" alt="colliders" data-pagespeed-url-hash="3278556067" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="300" width="600"></a></p>
+<p><a href="http://code.tutsplus.com/tutorials/getting-started-with-unity-colliders-unityscript--active-8367" target="_blank"><span style="font-size: xx-small;">Extracted from: Getting Started with Unity – Colliders &amp; UnityScript</span></a></p>
+<p>Capsule is useful for humans or humanoids as it better fits our body 
+than a box or a sphere. The Mesh one is almost never the complete mesh 
+itself. It’s rather a simplified version of the original mesh you’re 
+targeting but still much more precise than a box, a sphere or a capsule.</p>
+<h2>Loading the starting scene</h2>
+<p>To load our Espilit scene, you have various options:</p>
+<p>1 – Download it from our github: <a href="https://github.com/BabylonJS/Samples/tree/master/Scenes/Espilit" target="_blank">https://github.com/BabylonJS/Samples/tree/master/Scenes/Espilit</a> and follow this module of our MVA course to understand how to load a .babylon scene: <a href="http://www.microsoftvirtualacademy.com/training-courses/introduction-to-webgl-3d-with-html5-and-babylon-js?m=11722&amp;ct=34566" target="_blank">Introduction to WebGL 3D with HTML5 and Babylon.js – Loading Assets</a>.
+ Basically, you need to host the assets and the Babylon.js engine into a
+ web server and set the proper MIME types for the .babylon extension</p>
+<p>OR</p>
+<p>2 – Download this already setup Visual Studio solution: <a href="http://david.blob.core.windows.net/babylonjs/BabylonJSEspilitWithPhysicsStartingSolution.zip" target="_blank">BabylonJSEspilitWithPhysicsStartingSolution.zip</a> <img class="wlEmoticon wlEmoticon-smile" style="border-style: none;" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/5488_002.bin" alt="Sourire" data-pagespeed-url-hash="1913335415" onload="pagespeed.CriticalImages.checkImageForCriticality(this);"></p>
+<p><b><u>Note:</u></b> if you don’t know Visual Studio or not using it yet, have a look to this article: <a href="http://blogs.msdn.com/b/eternalcoding/archive/2014/07/17/web-developers-visual-studio-could-be-a-great-free-tool-to-develop-with.aspx" target="_blank">Web developers, Visual Studio could be a great free tool to develop with…</a> Please note also that the Pro version is now free for a lot of different scenarios. It’s named <a href="http://www.visualstudio.com/downloads/download-visual-studio-vs" target="_blank">Visual Studio 2013 Community Edition</a>. Of course, you can still follow this tutorial if you don’t want to use Visual Studio. <img src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/1f609.svg" alt="😉" class="emoji" draggable="false"></p>
+<p>Here is the code to load our scene:</p>
+<pre class="code"><span style="color: green;">/// &lt;reference path="/scripts/babylon.js" /&gt;
+</span><span style="color: blue;">var </span><span style="color: black;">engine;
+</span><span style="color: blue;">var </span><span style="color: black;">canvas;
+</span><span style="color: blue;">var </span><span style="color: black;">scene;
+document.addEventListener(</span><span style="color: #a31515;">"DOMContentLoaded"</span><span style="color: black;">, startGame, </span><span style="color: blue;">false</span><span style="color: black;">);
+</span><span style="color: blue;">function </span><span style="color: black;">startGame() {
+    </span><span style="color: blue;">if </span><span style="color: black;">(BABYLON.Engine.isSupported()) {
+        canvas = document.getElementById(</span><span style="color: #a31515;">"renderCanvas"</span><span style="color: black;">);
+        engine = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Engine(canvas, </span><span style="color: blue;">true</span><span style="color: black;">);
+        BABYLON.SceneLoader.Load(</span><span style="color: #a31515;">"Espilit/"</span><span style="color: black;">, </span><span style="color: #a31515;">"Espilit.babylon"</span><span style="color: black;">, engine, </span><span style="color: blue;">function </span><span style="color: black;">(loadedScene) {
+            scene = loadedScene;
+   
+            </span><span style="color: green;">// Wait for textures and shaders to be ready
+            </span><span style="color: black;">scene.executeWhenReady(</span><span style="color: blue;">function </span><span style="color: black;">() {
+                </span><span style="color: green;">// Attach camera to canvas inputs
+                </span><span style="color: black;">scene.activeCamera.attachControl(canvas);
+                
+                </span><span style="color: green;">// Once the scene is loaded, just register a render loop to render it
+                </span><span style="color: black;">engine.runRenderLoop(</span><span style="color: blue;">function </span><span style="color: black;">() {
+                    scene.render();
+                });
+            });
+        }, </span><span style="color: blue;">function </span><span style="color: black;">(progress) {
+            </span><span style="color: green;">// To do: give progress feedback to user
+        </span><span style="color: black;">});
+    }
+}</span></pre>
+<p>Using this material, you will only benefit from the embedded 
+collision engine of Babylon.js. Indeed, we’re making a difference 
+between our collision engine and a physics engine. The collision engine 
+is mostly dedicated to the camera interacting with the scene. You can 
+enable gravity or not on the camera, you can enable the “<i>checkCollision</i>”
+ option on the camera and on the various meshes. The collision engine 
+can also help you to know if two meshes are colliding. But that’s all 
+(this is already a lot in fact!). The collision engine won’t generate 
+actions, force or impulse after two Babylon.js objects are colliding. 
+You need a physics engine for that to bring life to the objects.</p>
+<p>The way we’ve been integrating physics in Babylon.js is via a plug-in mechanism. You can read more about that here: <a href="https://github.com/BabylonJS/Babylon.js/wiki/Adding-your-own-physics-engine-plugin-to-Babylon.js" target="_blank">Adding your own physics engine plugin to Babylon.js</a>. We’re supporting two open-source physics engine: <a href="http://cannonjs.org/" target="_blank">cannon.js</a> and <a href="https://github.com/lo-th/Oimo.js/" target="_blank">oimo.js</a>. <a href="http://lo-th.github.io/Oimo.js/" target="_blank">Oimo</a> is now the preferred default physics engine.</p>
+<p>If you’ve chosen “<i>option 1</i>” to load the scene, you then need to download Oimo.js from our github: <a href="https://github.com/BabylonJS/Babylon.js" target="_blank">https://github.com/BabylonJS/Babylon.js</a> . It’s a slightly updated version we’ve made to better support Babylon.js. If you’ve chosen “<i>option 2</i>”, it’s already referenced and available in the VS solution under the “<i>scripts</i>” folder.</p>
+<h2>Enabling physics support in the scene &amp; transforming colliders into physics impostors</h2>
+<p>First thing to do is to enable physics on the scene. For that, please add this line of code:</p>
+<pre class="code"><span style="color: black;">scene.enablePhysics(</span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Vector3(0, -10, 0), </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.OimoJSPlugin());
+</span><span style="color: green;">//scene.enablePhysics(new BABYLON.Vector3(0, -10, 0), new BABYLON.CannonJSPlugin());</span></pre>
+<p>You’re setting up the gravity level (-10 on the Y axis in this sample
+ code, which is more or less like what we have on Earth) and the physics
+ engine you’d like to use. We’ll use Oimo.js but the commented line 
+shows how to use cannon.js.</p>
+<p>Now, we need to iterate through all non-visible colliders used by the
+ collision engine and activate physics properties on it. For that, you 
+simply need to find all meshes where “<i>checkCollisions</i>” is set to true but not visible in the scene:</p>
+<pre class="code"><span style="color: blue;">for </span><span style="color: black;">(</span><span style="color: blue;">var </span><span style="color: black;">i = 1; i &lt; scene.meshes.length; i++) {
+    </span><span style="color: blue;">if </span><span style="color: black;">(scene.meshes[i].checkCollisions &amp;&amp; scene.meshes[i].isVisible === </span><span style="color: blue;">false</span><span style="color: black;">) {
+        scene.meshes[i].setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, 
+                                        friction: 0.5, restitution: 0.7 });
+        meshesColliderList.push(scene.meshes[i]);
+    }
+}</span></pre>
+<p>Please declare the <i>meshesColliderList</i> also:</p>
+<pre class="code"><span style="color: blue;">var </span><span style="color: black;">meshesColliderList = [];</span></pre>
+<p>And we’re done! We’re ready to throw some objects in our scene and put a lot of mess in this beautiful but way-to-calm museum.</p>
+<h2>Creating spheres &amp; boxes with physics states</h2>
+<p>We’re now going to add some spheres (with an Amiga texture) and some 
+boxes (with a wood texture) to the scene. This meshes will have physics 
+state set. For instance, this means that they will bounce on the floor 
+if you launch them in the air, bounce between them after a collision has
+ been detected and so on. The physics engine needs to know which kind of
+ impostor you’d like to use for the mesh (plane, sphere or box today), 
+the mass and friction properties.</p>
+<p>If you’ve chosen “<i>option 1</i>”, you can download the 2 textures here: <a href="http://david.blob.core.windows.net/babylonjs/physicsassets.zip" target="_blank">physicsassets.zip</a></p>
+<p>Add this code to your project:</p>
+<pre class="code"><span style="color: blue;">function </span><span style="color: black;">CreateMaterials() {
+    materialAmiga = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.StandardMaterial(</span><span style="color: #a31515;">"amiga"</span><span style="color: black;">, scene);
+    materialAmiga.diffuseTexture = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Texture(</span><span style="color: #a31515;">"assets/amiga.jpg"</span><span style="color: black;">, scene);
+    materialAmiga.emissiveColor = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Color3(0.5, 0.5, 0.5);
+    materialAmiga.diffuseTexture.uScale = 5;
+    materialAmiga.diffuseTexture.vScale = 5;
+    materialWood = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.StandardMaterial(</span><span style="color: #a31515;">"wood"</span><span style="color: black;">, scene);
+    materialWood.diffuseTexture = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Texture(</span><span style="color: #a31515;">"assets/wood.jpg"</span><span style="color: black;">, scene);
+    materialWood.emissiveColor = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Color3(0.5, 0.5, 0.5);
+}
+</span><span style="color: blue;">function </span><span style="color: black;">addListeners() {
+    window.addEventListener(</span><span style="color: #a31515;">"keydown"</span><span style="color: black;">, </span><span style="color: blue;">function </span><span style="color: black;">(evt) {
+        </span><span style="color: green;">// s for sphere
+        </span><span style="color: blue;">if </span><span style="color: black;">(evt.keyCode == 83) {
+            </span><span style="color: blue;">for </span><span style="color: black;">(</span><span style="color: blue;">var </span><span style="color: black;">index = 0; index &lt; 25; index++) {
+                </span><span style="color: blue;">var </span><span style="color: black;">sphere = BABYLON.Mesh.CreateSphere(</span><span style="color: #a31515;">"Sphere0"</span><span style="color: black;">, 10, 0.5, scene);
+                sphere.material = materialAmiga;
+                sphere.position = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Vector3(0 + index / 10, 3, 5 + index / 10);
+                sphere.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, { mass: 1 });
+            }
+        }
+        </span><span style="color: green;">// b for box
+        </span><span style="color: blue;">if </span><span style="color: black;">(evt.keyCode == 66) {
+            </span><span style="color: blue;">for </span><span style="color: black;">(</span><span style="color: blue;">var </span><span style="color: black;">index = 0; index &lt; 10; index++) {
+                </span><span style="color: blue;">var </span><span style="color: black;">box0 = BABYLON.Mesh.CreateBox(</span><span style="color: #a31515;">"Box0"</span><span style="color: black;">, 0.5, scene);
+                box0.position = </span><span style="color: blue;">new </span><span style="color: black;">BABYLON.Vector3(0 + index / 5, 3, 5 + index / 5);
+                box0.material = materialWood;
+                box0.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 4 });
+            }
+        }
+    });
+}</span></pre>
+<p>You see that boxes are heavier by 4 than the spheres.</p>
+<p><b><u>Note:</u></b> if you need to understand how material works in Babylon.js, jump to this module: <a href="http://www.microsoftvirtualacademy.com/training-courses/introduction-to-webgl-3d-with-html5-and-babylon-js?m=11720&amp;ct=34562" target="_blank">Introduction to WebGL 3D with HTML5 and Babylon.js – Understanding Materials and Inputs</a> or play with our dedicated Playground sample: <a href="http://www.babylonjs-playground.com/index.html?4" target="_blank">Babylon.js Playground – Materials sample</a></p>
+<p>Add these 2 lines of code after the <i>scene.enablePhysics</i> line:</p>
+<pre class="code"><span style="color: black;">CreateMaterials();
+addListeners();</span></pre>
+<p>And launch the web project. Navigate to the center of the museum and 
+press rather the “s” or “b” keys. You’ll obtain this fun result:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/4505.image_47350FAC.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="image" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/5483.bin" alt="image" data-pagespeed-url-hash="284542761" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="341" width="640"></a></p>
+<h2>Adding picking support to click on meshes</h2>
+<p>Let’s add another cool feature. Let’s now imagine you’d like to click
+ on one of the objects to throw them away. For that, you need to send a 
+ray from the 2D coordinates of the mouse inside the 3D scene, check if 
+this ray touches one of the interesting meshes and if so, apply an 
+impulse force on it to try to move it.</p>
+<p><b><u>Note:</u></b> to understand how picking works, please view this MVA module: <a href="http://www.microsoftvirtualacademy.com/training-courses/introduction-to-webgl-3d-with-html5-and-babylon-js?m=11723&amp;ct=34568" target="_blank">Introduction to WebGL 3D with HTML5 and Babylon.js – Advanced Features</a> or play with our online sample: <a href="http://www.babylonjs-playground.com/index.html?11" target="_blank">Babylon.js Playground – Picking sample</a></p>
+<p>Add this code into the <i>addListeners()</i> function:</p>
+<pre class="code"><span style="color: black;">canvas.addEventListener(</span><span style="color: #a31515;">"mousedown"</span><span style="color: black;">, </span><span style="color: blue;">function </span><span style="color: black;">(evt) {
+    </span><span style="color: blue;">var </span><span style="color: black;">pickResult = scene.pick(evt.clientX, evt.clientY, </span><span style="color: blue;">function </span><span style="color: black;">(mesh) {
+        </span><span style="color: blue;">if </span><span style="color: black;">(mesh.name.indexOf(</span><span style="color: #a31515;">"Sphere0"</span><span style="color: black;">) !== -1 || mesh.name.indexOf(</span><span style="color: #a31515;">"Box0"</span><span style="color: black;">) !== -1) {
+            </span><span style="color: blue;">return true</span><span style="color: black;">;
+        }
+        </span><span style="color: blue;">return false</span><span style="color: black;">;
+    });
+    </span><span style="color: blue;">if </span><span style="color: black;">(pickResult.hit) {
+        </span><span style="color: blue;">var </span><span style="color: black;">dir = pickResult.pickedPoint.subtract(scene.activeCamera.position);
+        dir.normalize();
+        pickResult.pickedMesh.applyImpulse(dir.scale(1), pickResult.pickedPoint);
+    }
+});</span></pre>
+<p>Launch again your code into your favorite browser. You can now click on your physic meshes to play with them.</p>
+<h2>Displaying the bounding boxes to better understand the whole story</h2>
+<p>We’re finally going to create a debug scene to let you 
+displaying/hiding the colliders and activating/deactivating the physics 
+properties on them.</p>
+<p>We’re going to inject the UI into this div:</p>
+<pre class="code"><span style="color: blue;">&lt;</span><span style="color: maroon;">div </span><span style="color: red;">id</span><span style="color: blue;">="lcContainer"&gt;
+    &lt;</span><span style="color: maroon;">ul </span><span style="color: red;">id</span><span style="color: blue;">="listColliders"&gt;
+    &lt;/</span><span style="color: maroon;">ul</span><span style="color: blue;">&gt;
+&lt;/</span><span style="color: maroon;">div</span><span style="color: blue;">&gt;</span></pre>
+<p>And we’ll use this function to handle the UI:</p>
+<pre class="code"><span style="color: blue;">function </span><span style="color: black;">CreateCollidersHTMLList() {
+    </span><span style="color: blue;">var </span><span style="color: black;">listColliders = document.getElementById(</span><span style="color: #a31515;">"listColliders"</span><span style="color: black;">);
+    </span><span style="color: blue;">for </span><span style="color: black;">(</span><span style="color: blue;">var </span><span style="color: black;">j = 0; j &lt; meshesColliderList.length; j++) {
+        </span><span style="color: blue;">var </span><span style="color: black;">newLi = document.createElement(</span><span style="color: #a31515;">"li"</span><span style="color: black;">);
+        </span><span style="color: blue;">var </span><span style="color: black;">chkVisibility = document.createElement(</span><span style="color: #a31515;">'input'</span><span style="color: black;">);
+        chkVisibility.type = </span><span style="color: #a31515;">"checkbox"</span><span style="color: black;">;
+        chkVisibility.name = meshesColliderList[j].name;
+        chkVisibility.id = </span><span style="color: #a31515;">"colvis" </span><span style="color: black;">+ j;
+        </span><span style="color: blue;">var </span><span style="color: black;">chkPhysics = document.createElement(</span><span style="color: #a31515;">'input'</span><span style="color: black;">);
+        chkPhysics.type = </span><span style="color: #a31515;">"checkbox"</span><span style="color: black;">;
+        chkPhysics.name = meshesColliderList[j].name;
+        chkPhysics.id = </span><span style="color: #a31515;">"colphysx" </span><span style="color: black;">+ j;
+        (</span><span style="color: blue;">function </span><span style="color: black;">(j) {
+            chkVisibility.addEventListener(
+             </span><span style="color: #a31515;">"click"</span><span style="color: black;">,
+             </span><span style="color: blue;">function </span><span style="color: black;">(event) {
+                 onChangeVisibility(j, event);
+             },
+             </span><span style="color: blue;">false
+           </span><span style="color: black;">);
+            chkPhysics.addEventListener(
+            </span><span style="color: #a31515;">"click"</span><span style="color: black;">,
+            </span><span style="color: blue;">function </span><span style="color: black;">(event) {
+                onChangePhysics(j, event);
+            },
+            </span><span style="color: blue;">false
+            </span><span style="color: black;">);
+        })(j)
+        newLi.textContent = meshesColliderList[j].name + </span><span style="color: #a31515;">" visibility/physx "</span><span style="color: black;">;
+        newLi.appendChild(chkVisibility);
+        newLi.appendChild(chkPhysics);
+        listColliders.appendChild(newLi);
+    }
+    </span><span style="color: blue;">function </span><span style="color: black;">onChangeVisibility(id, event) {
+        </span><span style="color: blue;">if </span><span style="color: black;">(!meshesColliderList[id].isVisible) {
+            meshesColliderList[id].isVisible = </span><span style="color: blue;">true</span><span style="color: black;">;
+            meshesColliderList[id].material.alpha = 0.75;
+            meshesColliderList[id].material.ambientColor.r = 1;
+        }
+        </span><span style="color: blue;">else </span><span style="color: black;">{
+            meshesColliderList[id].isVisible = </span><span style="color: blue;">false</span><span style="color: black;">;
+        }
+    }
+    </span><span style="color: blue;">function </span><span style="color: black;">onChangePhysics(id, event) {
+        </span><span style="color: blue;">if </span><span style="color: black;">(!meshesColliderList[id].checkCollisions) {
+            meshesColliderList[id].checkCollisions = </span><span style="color: blue;">true</span><span style="color: black;">;
+            meshesColliderList[id].setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, 
+                                                   friction: 0.5, restitution: 0.7 });
+        }
+        </span><span style="color: blue;">else </span><span style="color: black;">{
+            meshesColliderList[id].checkCollisions = </span><span style="color: blue;">false</span><span style="color: black;">;
+            meshesColliderList[id].setPhysicsState(BABYLON.PhysicsEngine.NoImpostor);
+        }
+    }
+}</span></pre>
+<p>I know, it generates a very ugly UI but I was too lazy to spend more time on it. Feel free to improve it! <img src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/1f61b.svg" alt="😛" class="emoji" draggable="false"></p>
+<p>Call this new function and launch the web project. Now, for instance, <strong>display the colliders 12 &amp; 17</strong>:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/6644.image_15D312C9.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="image" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/6840.bin" alt="image" data-pagespeed-url-hash="4161674377" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="344" width="640"></a></p>
+<p>You can also with the second checkbox enable/disable the physics 
+properties. For instance if you’re disabling the physics properties on 
+collider 12 and launch the spheres, they will now go through this wall! 
+On the following screenshot, this is for instance the case of the sphere
+ surrounded by the red square:</p>
+<p><a href="https://msdnshared.blob.core.windows.net/media/MSDNBlogsFS/prod.evol.blogs.msdn.com/CommunityServer.Blogs.Components.WeblogFiles/00/00/01/10/46/metablogapi/4188.image_454BC459.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" title="image" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/1854.bin" alt="image" data-pagespeed-url-hash="2937606319" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="344" width="640"></a></p>
+<p>You can play with this debugging sample directly in your browser here: <a href="http://az612410.vo.msecnd.net/wwwbabylonjs/Scenes/espilitphysicsdebug/index.html" target="_blank">Babylon.js Espilit Physics debug demo</a> if you’d like.</p>
+<p>Please also have a look at this awesome demo built by Samuel Girardin that also use Oimo.js on some funny characters:</p>
+<p><a href="http://www.visualiser.fr/Babylon/character/default.htm" target="_blank"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border: 0px;" title="characterstudy" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/3630.bin" alt="characterstudy" data-pagespeed-url-hash="1974862972" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" border="0" height="157" width="240"></a></p>
+<p>Hope you’ve enjoyed this tutorial! Feel free to ping me on Twitter: <a href="http://twitter.com/davrous">http://twitter.com/davrous</a> to comment it.</p>
+<p>David</p>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow" data-shared="sharing-twitter-972" class="share-twitter sd-button share-icon no-text" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?share=twitter&amp;nb=1" target="_blank" title="Click to share on Twitter"><span></span><span class="sharing-screen-reader-text">Click to share on Twitter (Opens in new window)</span></a></li><li class="share-facebook"><a rel="nofollow" data-shared="sharing-facebook-972" class="share-facebook sd-button share-icon no-text" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?share=facebook&amp;nb=1" target="_blank" title="Click to share on Facebook"><span></span><span class="sharing-screen-reader-text">Click to share on Facebook (Opens in new window)</span></a></li><li class="share-google-plus-1"><a rel="nofollow" data-shared="sharing-google-972" class="share-google-plus-1 sd-button share-icon no-text" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?share=google-plus-1&amp;nb=1" target="_blank" title="Click to share on Google+"><span></span><span class="sharing-screen-reader-text">Click to share on Google+ (Opens in new window)</span></a></li><li class="share-end"></li></ul></div></div></div>
+<div style="display: block;" id="jp-relatedposts" class="jp-relatedposts">
+	<h3 class="jp-relatedposts-headline"><em>Related</em></h3>
+<div class="jp-relatedposts-items jp-relatedposts-items-minimal"><p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="824" data-post-format="false"><span class="jp-relatedposts-post-title"><a data-position="0" data-origin="972" rel="nofollow" title="Coding4Fun tutorial: creating a 3D WebGL procedural QRCode maze with Babylon.js
+
+In this tutorial, you should have a lot of fun. You’ll learn how to create a 3D Maze using Babylon.js/WebGL based on a dynamically generated QR Code! This is based on a demo I’ve written for our big annual French conference named Techdays 2014 and more specifically for our famous…" href="https://www.davrous.com/2014/02/19/coding4fun-tutorial-creating-a-3d-webgl-procedural-qrcode-maze-with-babylon-js/" class="jp-relatedposts-post-a">Coding4Fun tutorial: creating a 3D WebGL procedural QRCode maze with Babylon.js</a></span><span class="jp-relatedposts-post-date">February 19, 2014</span><span class="jp-relatedposts-post-context">In "Coding4Fun"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="794" data-post-format="false"><span class="jp-relatedposts-post-title"><a data-position="1" data-origin="972" rel="nofollow" title="Using WebGL to create games for the Windows Store
+
+The Windows Store is probably the most opened platform for game studios today. You can create your games using DirectX 11, HTML5 2d-Canvas, Cocos2D-X, Unity 3D and starting with Windows 8.1 with WebGL! By the way, if some of these technologies also interest you, here is a useful article to…" href="https://www.davrous.com/2013/11/19/using-webgl-to-create-games-for-the-windows-store/" class="jp-relatedposts-post-a">Using WebGL to create games for the Windows Store</a></span><span class="jp-relatedposts-post-date">November 19, 2013</span><span class="jp-relatedposts-post-context">In "English"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="830" data-post-format="false"><span class="jp-relatedposts-post-title"><a data-position="2" data-origin="972" rel="nofollow" title="Next Game Frontier 2014: videos &amp; content
+
+Microsoft and Samsung have co-organized the first edition of the Next Game Frontier conference, a technical web event purely dedicated to games made with web standards. The initial idea came after a discussion we had with Daniel Glazman from Samsung, David Catuhe and I during Paris Web 2013. &nbsp; Find…" href="https://www.davrous.com/2014/03/20/next-game-frontier-2014-videos-content/" class="jp-relatedposts-post-a">Next Game Frontier 2014: videos &amp; content</a></span><span class="jp-relatedposts-post-date">March 20, 2014</span><span class="jp-relatedposts-post-context">In "English"</span></p></div></div>			</div><!-- .entry-content -->
+
+	<footer class="entry-footer">
+			</footer><!-- .entry-footer -->
+</article><!-- #post-## -->
+<div class="svg-container single-post-svg single-svg-bottom svg-block">
+	
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1920 150">
+		  <g transform="translate(0,-902.36218)"></g>
+		  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+		  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+		  <path d="M 0,150 0,0 1925,0"></path>
+		</svg>
+	</div>
+			
+	<nav class="navigation post-navigation" role="navigation">
+		<h2 class="screen-reader-text">Post navigation</h2>
+		<div class="nav-links"><div class="nav-previous"><a href="https://www.davrous.com/2014/08/22/enhance-your-javascript-debugging-life-using-ie11-chrome-opera-firefox-source-map-support/" rel="prev">Enhance your JavaScript debugging life using IE11, Chrome, Opera &amp; Firefox source map support</a></div><div class="nav-next"><a href="https://www.davrous.com/2014/11/21/ralisation-dune-configuration-pc-haut-de-gamme-pour-jouer-4k-ce-quil-faut-savoir-et-mes-choix/" rel="next">Réalisation d’une configuration PC haut de gamme pour jouer 4K : ce qu’il faut savoir et mes choix</a></div></div>
+	</nav>
+			
+<div id="comments" class="comments-area">
+
+	
+			<h2 class="comments-title">
+			9 thoughts on “<span>Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js</span>”		</h2>
+
+		
+		<ol class="comment-list">
+					<li id="comment-865" class="comment even thread-even depth-1">
+			<article id="div-comment-865" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/3651e719491c63d4424134d66fe53db9.jpeg" srcset="https://secure.gravatar.com/avatar/3651e719491c63d4424134d66fe53db9?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="4219394675" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">Den</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-865">
+							<time datetime="2014-11-19T04:00:52+00:00">
+								November 19, 2014 at 4:00 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Thanks for sharing. It would also be nice if Microsoft 
+open-sourced XNA and contributed to MonoGame to enable the WebGL target 
+faster.</p>
+<p>Support your own framework (XNA), your partner ecosystem (Xamarin) 
+and your own language (C#) please. Scripting with a weak dynamic 
+language is not a way to go.</p>
+<p><a target="_new" href="http://visualstudio.uservoice.com/forums/121579-visual-studio/suggestions/3725445-xna-5" rel="nofollow">visualstudio.uservoice.com/…/3725445-xna-5</a></p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=865#respond" onclick='return addComment.moveForm( "div-comment-865", "865", "respond", "972" )' aria-label="Reply to Den">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-866" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-866" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/02867a07b105a10d6b8cc37c81521f7f.jpeg" srcset="https://secure.gravatar.com/avatar/02867a07b105a10d6b8cc37c81521f7f?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="2619862682" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">davrous</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-866">
+							<time datetime="2014-11-19T04:28:59+00:00">
+								November 19, 2014 at 4:28 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>I've also enjoyed a lot XNA but when I read "Scripting with a 
+weak dynamic language is not a way to go" -&gt; well, I will obviously 
+disagree with you: <a target="_new" href="http://blogs.msdn.com/b/davrous/archive/2014/06/20/the-web-the-next-game-frontier.aspx" rel="nofollow">blogs.msdn.com/…/the-web-the-next-game-frontier.aspx</a> </p>
+<p>Moreover, Babylon.JS is written in TypeScript. </p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=866#respond" onclick='return addComment.moveForm( "div-comment-866", "866", "respond", "972" )' aria-label="Reply to davrous">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-867" class="comment even thread-even depth-1">
+			<article id="div-comment-867" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/c1c1439b1d555e48956b0aa516b9f48f.jpeg" srcset="https://secure.gravatar.com/avatar/c1c1439b1d555e48956b0aa516b9f48f?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="1289991180" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">godshine01@163.com</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-867">
+							<time datetime="2014-11-19T08:25:23+00:00">
+								November 19, 2014 at 8:25 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Thanks for your work. </p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=867#respond" onclick='return addComment.moveForm( "div-comment-867", "867", "respond", "972" )' aria-label="Reply to godshine01@163.com">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-868" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-868" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/3651e719491c63d4424134d66fe53db9.jpeg" srcset="https://secure.gravatar.com/avatar/3651e719491c63d4424134d66fe53db9?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="4219394675" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">SirFizX</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-868">
+							<time datetime="2014-11-30T15:02:42+00:00">
+								November 30, 2014 at 3:02 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Your work is a wonderful gift to the world. &nbsp;Do you have any plans to speak in the Boston area?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=868#respond" onclick='return addComment.moveForm( "div-comment-868", "868", "respond", "972" )' aria-label="Reply to SirFizX">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-869" class="comment even thread-even depth-1">
+			<article id="div-comment-869" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/02867a07b105a10d6b8cc37c81521f7f.jpeg" srcset="https://secure.gravatar.com/avatar/02867a07b105a10d6b8cc37c81521f7f?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="2619862682" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">davrous</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-869">
+							<time datetime="2014-12-01T11:41:41+00:00">
+								December  1, 2014 at 11:41 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Hi SirFizX! Thanks for your feedback. For US talk, please contact David Catuhe, the other developer: <a target="_new" href="http://blogs.msdn.com/eternalcoding" rel="nofollow">blogs.msdn.com/eternalcoding</a> or email: davca at microsoft dot com. He's living in the US.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=869#respond" onclick='return addComment.moveForm( "div-comment-869", "869", "respond", "972" )' aria-label="Reply to davrous">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-870" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-870" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/3651e719491c63d4424134d66fe53db9.jpeg" srcset="https://secure.gravatar.com/avatar/3651e719491c63d4424134d66fe53db9?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="4219394675" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">altreality</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-870">
+							<time datetime="2014-12-25T03:57:09+00:00">
+								December 25, 2014 at 3:57 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Thanks David for this wonderful work. I will try to contribute to the engine.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=870#respond" onclick='return addComment.moveForm( "div-comment-870", "870", "respond", "972" )' aria-label="Reply to altreality">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-1010" class="comment even thread-even depth-1">
+			<article id="div-comment-1010" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/d5ac23a4941c0bd49ed6f49e88c893e7.jpeg" srcset="https://secure.gravatar.com/avatar/d5ac23a4941c0bd49ed6f49e88c893e7?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="1038283275" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn"><a href="http://www.check123.com/" rel="external nofollow" class="url">dor cohen</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-1010">
+							<time datetime="2016-04-24T13:29:47+00:00">
+								April 24, 2016 at 1:29 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>I really like your writing style,  excellent  info ,  thankyou  for  putting up : D.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=1010#respond" onclick='return addComment.moveForm( "div-comment-1010", "1010", "respond", "972" )' aria-label="Reply to dor cohen">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-1011" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-1011" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/d5ac23a4941c0bd49ed6f49e88c893e7.jpeg" srcset="https://secure.gravatar.com/avatar/d5ac23a4941c0bd49ed6f49e88c893e7?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="1038283275" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn"><a href="http://www.check123.com/" rel="external nofollow" class="url">dor cohen</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-1011">
+							<time datetime="2016-04-24T13:50:39+00:00">
+								April 24, 2016 at 1:50 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Hi, i think that i saw you visited my blog thus i came to 
+“return the favor”.I am attempting to find things to enhance my web 
+site!I suppose its ok to use a few of your ideas!!</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=1011#respond" onclick='return addComment.moveForm( "div-comment-1011", "1011", "respond", "972" )' aria-label="Reply to dor cohen">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-4202" class="comment even thread-even depth-1">
+			<article id="div-comment-4202" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/daf7f2f1ef3a26184bb645e2c5fca0e9.jpeg" srcset="https://secure.gravatar.com/avatar/daf7f2f1ef3a26184bb645e2c5fca0e9?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" data-pagespeed-url-hash="2760496837" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" height="60" width="60">						<b class="fn">Ian Sheehan</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-4202">
+							<time datetime="2016-10-27T12:22:05+00:00">
+								October 27, 2016 at 12:22 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Just One question. If we create plane and ball in blender. And 
+If plane has plane or box collider and ball sphere collider. If we 
+define colliders in blender (blender checkbox and collider type). When 
+we export in .Babylon. If we in Code add ball sphere collider. Does ball
+ have than two sphere colliders one defined in blender and another 
+defined in Code. What is preferred way defined only in blender or only 
+in Code? What is different?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/?replytocom=4202#respond" onclick='return addComment.moveForm( "div-comment-4202", "4202", "respond", "972" )' aria-label="Reply to Ian Sheehan">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		</ol><!-- .comment-list -->
+
+		
+	
+	
+		<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#respond" style="display:none;">Cancel reply</a></small></h3>			<form action="https://www.davrous.com/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate="">
+				<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p><p class="comment-form-comment"><label for="comment">Comment</label><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p><p class="comment-form-author"><label for="author">Name</label> <span class="required">*</span><input id="author" name="author" size="30" aria-required="true" type="text"></p>
+<p class="comment-form-email"><label for="email">Email</label> <span class="required">*</span><input id="email" name="email" size="30" aria-required="true" type="text"></p>
+<p class="comment-form-url"><label for="url">Website</label><input id="url" name="url" size="30" type="text"></p>
+<p class="form-submit"><input name="submit" id="submit" class="submit" value="Post Comment" type="submit"> <input name="comment_post_ID" value="972" id="comment_post_ID" type="hidden">
+<input name="comment_parent" id="comment_parent" value="0" type="hidden">
+</p><p style="display: none;"><input id="akismet_comment_nonce" name="akismet_comment_nonce" value="af460e24a6" type="hidden"></p><p class="comment-subscription-form"><input name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;" type="checkbox"> <label class="subscribe-label" id="subscribe-label" for="subscribe_comments">Notify me of follow-up comments by email.</label></p><p class="comment-subscription-form"><input name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;" type="checkbox"> <label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">Notify me of new posts by email.</label></p><p style="display: none;"></p>			<input id="ak_js" name="ak_js" value="1487770769806" type="hidden"></form>
+			</div><!-- #respond -->
+		
+</div><!-- #comments -->
+
+		
+		</main><!-- #main -->
+	</div><!-- #primary -->
+
+
+<div id="secondary" class="widget-area" role="complementary">
+
+
+
+	<nav id="site-navigation" class="main-navigation" role="navigation">
+		<div id="primary-menu" class="menu"><ul>
+<li class="page_item page-item-3275"><a href="https://www.davrous.com/about/">About Me</a></li>
+</ul></div>
+	</nav><!-- #site-navigation -->
+	<nav class="sidebar-nav"><div class="slicknav_menu"><a style="outline: medium none;" href="#" aria-haspopup="true" tabindex="0" class="slicknav_btn slicknav_collapsed"><span class="slicknav_menutxt"></span><span class="slicknav_icon slicknav_no-text"><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span></span></a><div role="menu" aria-hidden="true" style="display: none;" class="slicknav_nav slicknav_hidden"><ul>
+<li class="page_item page-item-3275"><a role="menuitem" href="https://www.davrous.com/about/">About Me</a></li>
+</ul></div></div></nav>
+
+
+
+			<aside id="text-7" class="widget widget_text">			<div class="textwidget"><a href="https://www.davrous.com/about/">
+<img src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/starwarsdavrous.jpg" data-pagespeed-url-hash="1396838943" onload="pagespeed.CriticalImages.checkImageForCriticality(this);" width="75%">
+</a></div>
+		</aside><aside id="search-2" class="widget widget_search"><form role="search" method="get" class="search-form" action="https://www.davrous.com/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input class="search-field" placeholder="Search …" name="s" type="search">
+				</label>
+				<input class="search-submit" value="Search" type="submit">
+			</form></aside>		<aside id="recent-posts-2" class="widget widget_recent_entries">		<h3 class="widget-title">Recent Posts</h3>		<ul>
+					<li>
+				<a href="https://www.davrous.com/2016/12/07/creating-an-extension-for-all-browsers-edge-chrome-firefox-opera-brave/">Creating an extension for all browsers: Edge, Chrome, Firefox, Opera, Brave and Vivaldi</a>
+						</li>
+					<li>
+				<a href="https://www.davrous.com/2016/07/21/2016-is-the-year-of-vr-and-room-scale-vr-with-htc-vive-is-the-ultimate-experience/">2016 is the year of VR and room scale VR with HTC Vive is the ultimate experience</a>
+						</li>
+					<li>
+				<a href="https://www.davrous.com/2016/05/27/tutorial-creating-a-small-8-bit-responsive-drum-machine-using-web-audio-svg-multi-touches/">Tutorial: creating a small 8-bit responsive drum machine using Web Audio, SVG &amp; multi-touches</a>
+						</li>
+					<li>
+				<a href="https://www.davrous.com/2016/05/03/stabilizing-your-drones-or-any-shaky-video-with-microsoft-cognitive-services/">Stabilizing your drone’s or any shaky video with Microsoft Cognitive Services</a>
+						</li>
+					<li>
+				<a href="https://www.davrous.com/2016/02/05/discovering-sponza-by-babylon-js-and-sharing-tips-on-how-to-build-a-cross-platforms-webgl-game/">Discovering Sponza by Babylon.js and sharing tips on how to build a cross-platforms WebGL game</a>
+						</li>
+				</ul>
+		</aside>		<aside id="recent-comments-2" class="widget widget_recent_comments"><h3 class="widget-title">Recent Comments</h3><ul id="recentcomments"><li class="recentcomments"><span class="comment-author-link"><a href="https://www.davrous.com/" rel="external nofollow" class="url">David Rousset</a></span> on <a href="https://www.davrous.com/2013/07/18/tutorial-part-6-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-texture-mapping-back-face-culling-webgl/#comment-7737">Tutorial part 6: learning how to write a 3D software engine in C#, TS or JS – Texture mapping, back-face culling &amp; WebGL</a></li><li class="recentcomments"><span class="comment-author-link">hello graphics</span> on <a href="https://www.davrous.com/2013/07/18/tutorial-part-6-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-texture-mapping-back-face-culling-webgl/#comment-7736">Tutorial part 6: learning how to write a 3D software engine in C#, TS or JS – Texture mapping, back-face culling &amp; WebGL</a></li><li class="recentcomments"><span class="comment-author-link">Giovanni Passerello</span> on <a href="https://www.davrous.com/2013/06/13/tutorial-series-learning-how-to-write-a-3d-soft-engine-from-scratch-in-c-typescript-or-javascript/#comment-5950">Tutorial series: learning how to write a 3D soft engine from scratch in C#, TypeScript or JavaScript</a></li><li class="recentcomments"><span class="comment-author-link">matt_p</span> on <a href="https://www.davrous.com/2013/06/13/tutorial-series-learning-how-to-write-a-3d-soft-engine-from-scratch-in-c-typescript-or-javascript/#comment-5909">Tutorial series: learning how to write a 3D soft engine from scratch in C#, TypeScript or JavaScript</a></li><li class="recentcomments"><span class="comment-author-link">Ian Sheehan</span> on <a href="https://www.davrous.com/2014/11/18/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js/#comment-4202">Understanding collisions &amp; physics by building a cool WebGL Babylon.js demo with Oimo.js</a></li></ul></aside><aside id="archives-2" class="widget widget_archive"><h3 class="widget-title">Archives</h3>		<ul>
+			<li><a href="https://www.davrous.com/2016/12/?lang=en_us">December 2016</a></li>
+	<li><a href="https://www.davrous.com/2016/07/?lang=en_us">July 2016</a></li>
+	<li><a href="https://www.davrous.com/2016/05/?lang=en_us">May 2016</a></li>
+		</ul>
+		</aside><aside id="categories-2" class="widget widget_categories"><h3 class="widget-title">Categories</h3>		<ul>
+	<li class="cat-item cat-item-131"><a href="https://www.davrous.com/category/3d-software-engine/?lang=en_us">3D Software Engine</a>
+</li>
+	<li class="cat-item cat-item-130"><a href="https://www.davrous.com/category/coding4fun/?lang=en_us">Coding4Fun</a>
+</li>
+	<li class="cat-item cat-item-132"><a href="https://www.davrous.com/category/easeljs/?lang=en_us">EaselJS</a>
+</li>
+	<li class="cat-item cat-item-125"><a href="https://www.davrous.com/category/english/?lang=en_us">English</a>
+</li>
+	<li class="cat-item cat-item-126"><a href="https://www.davrous.com/category/french/?lang=en_us">French</a>
+</li>
+	<li class="cat-item cat-item-127"><a href="https://www.davrous.com/category/non-technical/?lang=en_us">Non technical</a>
+</li>
+	<li class="cat-item cat-item-128"><a href="https://www.davrous.com/category/technical-article/?lang=en_us">Technical article</a>
+</li>
+	<li class="cat-item cat-item-129"><a href="https://www.davrous.com/category/tutorial/?lang=en_us">Tutorial</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="https://www.davrous.com/category/uncategorized/?lang=en_us">Uncategorized</a>
+</li>
+		</ul>
+</aside><aside id="meta-2" class="widget widget_meta"><h3 class="widget-title">Meta</h3>			<ul>
+						<li><a href="https://www.davrous.com/wp-login.php">Log in</a></li>
+			<li><a href="https://www.davrous.com/feed/">Entries <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="https://www.davrous.com/comments/feed/">Comments <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="https://wordpress.org/" title="Powered by WordPress, state-of-the-art semantic personal publishing platform.">WordPress.org</a></li>			</ul>
+			</aside><aside id="text-13" class="widget widget_text">			<div class="textwidget"><script async="" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/babylon.js" onload="babylonJSLoaded()"></script>
+<script>var canvas_w_orig=1920;var canvas_h_orig=850;var myHeader;var readyToDisplayScene=0;function babylonJSLoaded(){readyToDisplayScene++;if(readyToDisplayScene===2){renderWebGLHeader();}}window.addEventListener('DOMContentLoaded',function(){readyToDisplayScene++;if(readyToDisplayScene===2){renderWebGLHeader();}});function renderWebGLHeader(){var sun;var earth;var mars;var sunFresnel;var earthFresnel;var marsFresnel;myHeader=document.getElementById("masthead");var canvas=document.createElement("canvas");canvas.id="babylonjsBanner";canvas.style.width="100%";canvas.style.height="100%";canvas.style.position="absolute";canvas.style.overflow="hidden";canvas.style.top="0px";canvas.style.left="0px";canvas.style.zIndex=-2;myHeader.insertBefore(canvas,myHeader.firstChild);var backImage=document.getElementById("backImage");var engine=new BABYLON.Engine(canvas,true);resizeToCover();var createScene=function(){var scene=new BABYLON.Scene(engine);scene.clearColor=new BABYLON.Color4(0,0,0,0);var camera=new BABYLON.FreeCamera('camera1',new BABYLON.Vector3(0,5,-10),scene);camera.setTarget(BABYLON.Vector3.Zero());var light=new BABYLON.HemisphericLight('light1',new BABYLON.Vector3(0,0,0),scene);light.specular=BABYLON.Color3.Black();light.diffuse=new BABYLON.Color3(0.5,0.5,0.4);var sunLight=new BABYLON.PointLight("sunlight",new BABYLON.Vector3(1.6,1.1,0),scene);sunLight.specular=BABYLON.Color3.Black();sunLight.diffuse=new BABYLON.Color3(0.75,0.75,0.6);sunFresnel=BABYLON.Mesh.CreateSphere("SunFresnel",32,5.9,scene);sunFresnel.position=new BABYLON.Vector3(1.6,1.1,0);var sunFresnelMaterial=new BABYLON.StandardMaterial("SunFresnelMaterial",scene);sunFresnelMaterial.emissiveColor=BABYLON.Color3.White();sunFresnelMaterial.alpha=0.7;sunFresnelMaterial.alphaMode=BABYLON.Engine.ALPHA_ADD;sunFresnelMaterial.emissiveFresnelParameters=new BABYLON.FresnelParameters();sunFresnelMaterial.emissiveFresnelParameters.bias=0.05;sunFresnelMaterial.emissiveFresnelParameters.power=1;sunFresnelMaterial.emissiveFresnelParameters.leftColor=BABYLON.Color3.Yellow();sunFresnelMaterial.emissiveFresnelParameters.rightColor=BABYLON.Color3.Black();sunFresnel.material=sunFresnelMaterial;BABYLON.SceneLoader.ImportMesh("SunLoPoly","https://david.blob.core.windows.net/babylonjs/banner/","sun.babylon",scene,function(newMeshes,particleSystems,skeletons){sun=newMeshes[0];sun.scaling=new BABYLON.Vector3(8.25,8.25,8.25);sun.position=new BABYLON.Vector3(1.6,1.1,0);sun.material.emissiveColor=new BABYLON.Color3(0.8,0.8,0.8);earthFresnel=BABYLON.Mesh.CreateSphere("EarthFresnel",32,0.2,scene);earthFresnel.position=new BABYLON.Vector3(-0.71,-0.4,0);earthFresnel.parent=sun;var earthFresnelMaterial=new BABYLON.StandardMaterial("EarthFresnelMaterial",scene);earthFresnelMaterial.emissiveColor=new BABYLON.Color3(0.3,0.3,0.3);earthFresnelMaterial.alpha=0.7;earthFresnelMaterial.alphaMode=BABYLON.Engine.ALPHA_ADD;earthFresnelMaterial.emissiveFresnelParameters=new BABYLON.FresnelParameters();earthFresnelMaterial.emissiveFresnelParameters.bias=0.05;earthFresnelMaterial.emissiveFresnelParameters.power=1;earthFresnelMaterial.emissiveFresnelParameters.leftColor=new BABYLON.Color3(0.6431372549019608,0.8313725490196078,1);earthFresnelMaterial.emissiveFresnelParameters.rightColor=BABYLON.Color3.Blue();earthFresnel.material=earthFresnelMaterial;marsFresnel=BABYLON.Mesh.CreateSphere("MarsFresnel",32,0.056,scene);marsFresnel.position=new BABYLON.Vector3(0.332,0.50,0.275);marsFresnel.parent=sun;var marsFresnelMaterial=new BABYLON.StandardMaterial("EarthFresnelMaterial",scene);marsFresnelMaterial.emissiveColor=new BABYLON.Color3(0.1,0.1,0.1);marsFresnelMaterial.alpha=0.5;marsFresnelMaterial.alphaMode=BABYLON.Engine.ALPHA_ADD;marsFresnelMaterial.emissiveFresnelParameters=new BABYLON.FresnelParameters();marsFresnelMaterial.emissiveFresnelParameters.bias=0.05;marsFresnelMaterial.emissiveFresnelParameters.power=1;marsFresnelMaterial.emissiveFresnelParameters.leftColor=BABYLON.Color3.Red();marsFresnelMaterial.emissiveFresnelParameters.rightColor=BABYLON.Color3.Black();marsFresnel.material=marsFresnelMaterial;BABYLON.SceneLoader.ImportMesh("EarthClouds","https://david.blob.core.windows.net/babylonjs/banner/","earth.babylon",scene,function(newMeshes,particleSystems,skeletons){earth=newMeshes[0];earth.scaling=new BABYLON.Vector3(11.5,11.5,11.5);earth.rotation.x+=Math.PI/2;earth.position=new BABYLON.Vector3(-0.71,-0.4,0);earth.parent=sun;});BABYLON.SceneLoader.ImportMesh("Mars","https://david.blob.core.windows.net/babylonjs/banner/","mars.babylon",scene,function(newMeshes,particleSystems,skeletons){mars=newMeshes[0];mars.scaling=new BABYLON.Vector3(3.2,3.2,3.2);mars.rotation.x+=Math.PI/2;mars.position=new BABYLON.Vector3(0.332,0.50,0.275);mars.parent=sun;});});return scene;}
+var scene=createScene();engine.runRenderLoop(function(){if(sun&&earth&&mars){sun.rotation.y+=0.003;earth.rotation.z+=0.01;mars.rotation.z+=0.01;}scene.render();});function resizeToCover(){var currentWidth=myHeader.offsetWidth;var currentHeight=myHeader.offsetHeight;var scale_h=currentWidth/canvas_w_orig;var scale_v=currentHeight/canvas_h_orig;var scale=scale_h>scale_v?scale_h:scale_v;canvas.style.width=scale*canvas_w_orig+"px";canvas.style.height=scale*canvas_h_orig+"px";canvas.style.transform="translateX(-"+(scale*canvas_w_orig-currentWidth)/2+"px)";engine.resize();};window.addEventListener('resize',function(){resizeToCover();});}</script></div>
+		</aside>	
+</div><!-- #secondary -->
+
+		</div>
+	</div><!-- #content -->
+
+	<div class="svg-container footer-svg svg-block">
+		
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1890 150">
+			<g transform="translate(0,-902.36218)"></g>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 898.41609,-33.21176 0.01,0 -0.005,-0.009 -0.005,0.009 z"></path>
+			  <path d="m 1925,0 0,150 -1925,0"></path>
+		</svg>
+		</div>
+	<footer id="colophon" class="site-footer" role="contentinfo">
+		<div class="site-info container">
+			<a href="http://wordpress.org/" rel="nofollow">Proudly powered by WordPress</a><span class="sep"> | </span>Theme: <a href="http://themeisle.com/themes/oblique/" rel="nofollow">Oblique</a> by Themeisle.		</div><!-- .site-info -->
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+	<div style="display:none">
+	<div class="grofile-hash-map-3651e719491c63d4424134d66fe53db9">
+	</div>
+	<div class="grofile-hash-map-02867a07b105a10d6b8cc37c81521f7f">
+	</div>
+	<div class="grofile-hash-map-c1c1439b1d555e48956b0aa516b9f48f">
+	</div>
+	<div class="grofile-hash-map-d5ac23a4941c0bd49ed6f49e88c893e7">
+	</div>
+	<div class="grofile-hash-map-daf7f2f1ef3a26184bb645e2c5fca0e9">
+	</div>
+	</div>
+
+	<script type="text/javascript">window.WPCOM_sharing_counts={"https:\/\/www.davrous.com\/2014\/11\/18\/understanding-collisions-physics-by-building-a-cool-webgl-babylon-js-demo-with-oimo-js\/":972};</script>
+<script src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/wp-content_plugins_akismet__inc_form.js"></script><script>eval(mod_pagespeed_SnhpyQUK4X);</script>
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/devicepx-jetpack.js"></script>
+<script>eval(mod_pagespeed_lY9NMJv1uT);</script>
+<script>eval(mod_pagespeed_F9gKaYEq81);</script>
+<script>eval(mod_pagespeed_8KLYCyPfbZ);</script>
+<script>eval(mod_pagespeed_YL$UdB2EG_);</script>
+<script>eval(mod_pagespeed_zHn7WvnZbb);</script>
+<script type="text/javascript">var sharing_js_options={"lang":"en","counts":"1"};</script>
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/sharing.js"></script>
+<script type="text/javascript">var windowOpen;jQuery(document.body).on('click','a.share-twitter',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}windowOpen=window.open(jQuery(this).attr('href'),'wpcomtwitter','menubar=1,resizable=1,width=600,height=350');return false;});var windowOpen;jQuery(document.body).on('click','a.share-facebook',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}windowOpen=window.open(jQuery(this).attr('href'),'wpcomfacebook','menubar=1,resizable=1,width=600,height=400');return false;});var windowOpen;jQuery(document.body).on('click','a.share-google-plus-1',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}windowOpen=window.open(jQuery(this).attr('href'),'wpcomgoogle-plus-1','menubar=1,resizable=1,width=480,height=550');return false;});</script>
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/e-201708.js" async="" defer="defer"></script>
+<script type="text/javascript">_stq=window._stq||[];_stq.push(['view',{v:'ext',j:'1:4.4.2',blog:'109948310',post:'972',tz:'0',srv:'www.davrous.com'}]);_stq.push(['clickTrackerInit','109948310','972']);</script>
+
+<!-- SyntaxHighlighter Stuff -->
+<script type="text/javascript" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/shCore.js"></script>
+<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+
+
+
+<img id="wpstats" alt=":)" src="Understanding%20collisions%20&amp;%20physics%20by%20building%20a%20cool%20WebGL%20Babylon.js%20demo%20with%20Oimo.js%20%E2%80%93%20David%20Rousset_files/g.gif" height="5" width="6"></body></html>

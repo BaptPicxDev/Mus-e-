@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+        <!-- Babylon.js -->
+        <script src="dist/cannon.js"></script>
+        <script src="dist/Oimo.js"></script>
+        <script src="dist/babylon.js"></script>
+	    <script src="data.js"></script>
+        <link rel="stylesheet" type="text/css" href="app.css"/>
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone">
+        <canvas id="renderCanvas"></canvas>
+    </div>
+    <div id="fenetreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+        
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+        
+            // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 1.7, -10), scene);
+        
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+        
+            // This attaches the camera to the canvas
+            camera.attachControl(canvas, true);
+        
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+        
+            // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
+            var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
+        
+            // Move the sphere upward 1/2 its height
+            sphere.position.x= -2;
+        
+            // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
+            var ground = BABYLON.Mesh.CreateGround("ground1", 100, 100, 20, scene);
+
+	    var tableaux = data.tableaux ; 
+	    for(var i in tableaux){
+		var tableau = tableaux[i] ; 
+		var largeur = tableau["largeur"] ; 
+		var hauteur = tableau["hauteur"] ; 
+		var recto          = BABYLON.Mesh.CreatePlane("recto-"+i,1.0,scene) ; 
+		recto.scaling      = new BABYLON.Vector3(largeur/2.0,hauteur/2.0,1.0) ; 
+		recto.position     = new BABYLON.Vector3(5*i,1.7,0.0) ;  
+		var mat            = new BABYLON.StandardMaterial("materiau-"+i,scene);
+		mat.diffuseTexture = new BABYLON.Texture(tableau.nom,scene);
+		recto.material     = mat ; 
+		recto.checkCollisions = true ;
+	    }
+
+	    // Gestion des collisions
+	    // ======================
+
+	    scene.gravity = new BABYLON.Vector3(0.0,-9.81,0.0) ; 
+	    scene.collisionsEnabled = true ;
+	    camera.applyGravity = true ;
+	    camera.checkCollisions = true ; 
+  	    camera.ellipsoid = new BABYLON.Vector3(1.0,1.0,1.0) ; 
+	    ground.checkCollisions = true ;
+        	
+   
+        
+            return scene;
+        
+        };
+        
+        var scene = createScene();
+
+	// Callback de sélection par click souris
+	// ======================================
+	window.addEventListener("click",function(event){
+			var pickResult = scene.pick(event.clientX, event.clientY) ;
+			if(pickResult.hit)console.log(pickResult.pickedMesh.name) ;  
+				}) ;
+
+	// Callback d'affichage
+	// ====================
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        // Callback de retaillage
+	// ======================
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
